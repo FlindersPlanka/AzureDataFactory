@@ -237,7 +237,14 @@
 							"name": "Return first page from REST API",
 							"description": "A dummy NextPageUrl is used to ensure that only a single page is returned.  The other pages are returned in the second GET from the REST API.  \nThis is done since there is no way (yet) to use an expression in the determination of NextPageUrl and the nature of the JSON response may make it hard to determine the right JSON node to use for NextPageUrl without an expression.  ",
 							"type": "Copy",
-							"dependsOn": [],
+							"dependsOn": [
+								{
+									"activity": "Translate JSON Variables",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
 							"policy": {
 								"timeout": "7.00:00:00",
 								"retry": 0,
@@ -388,8 +395,15 @@
 									"referenceName": "REST_Dataset",
 									"type": "DatasetReference",
 									"parameters": {
-										"RelativeUrl": "classification-schemes?size=50",
-										"NextPageUrl": "$.dummy-no-paging"
+										"RelativeUrl": {
+											"value": "@activity('Translate JSON Variables').output.result.RelativeUrl",
+											"type": "Expression"
+										},
+										"NextPageUrl": "$.dummy-no-paging",
+										"ApiKey": {
+											"value": "@activity('Translate JSON Variables').output.result.APIKey",
+											"type": "Expression"
+										}
 									}
 								}
 							],
@@ -407,7 +421,14 @@
 						{
 							"name": "Copy2",
 							"type": "Copy",
-							"dependsOn": [],
+							"dependsOn": [
+								{
+									"activity": "Return first page from REST API",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
 							"policy": {
 								"timeout": "7.00:00:00",
 								"retry": 0,
@@ -558,8 +579,18 @@
 									"referenceName": "REST_Dataset",
 									"type": "DatasetReference",
 									"parameters": {
-										"RelativeUrl": "classification-schemes?size=50&offset=50",
-										"NextPageUrl": "$.navigationLinks[1].href"
+										"RelativeUrl": {
+											"value": "@activity('Translate JSON Variables').output.result.SecondPageRelativeUrl",
+											"type": "Expression"
+										},
+										"NextPageUrl": {
+											"value": "@activity('Translate JSON Variables').output.result.NextPageUrlJsonPath",
+											"type": "Expression"
+										},
+										"ApiKey": {
+											"value": "@activity('Translate JSON Variables').output.result.APIKey",
+											"type": "Expression"
+										}
 									}
 								}
 							],
