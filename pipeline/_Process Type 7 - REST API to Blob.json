@@ -602,10 +602,6 @@
 										"NextPageUrl": {
 											"value": "@activity('Translate JSON Variables').output.result.NextPageUrlJsonPath",
 											"type": "Expression"
-										},
-										"ApiKey": {
-											"value": "@activity('Translate JSON Variables').output.result.APIKey",
-											"type": "Expression"
 										}
 									}
 								}
