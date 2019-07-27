@@ -121,143 +121,9 @@
 							}
 						},
 						{
-							"name": "If Extract Control Applies",
-							"description": "If the Variable ExtractControlQuery is not blank, execute this query to return a value for Extract Control.  This is used only in incremental/changeset type extracts.",
-							"type": "IfCondition",
-							"dependsOn": [
-								{
-									"activity": "Translate JSON Variables",
-									"dependencyConditions": [
-										"Succeeded"
-									]
-								}
-							],
-							"userProperties": [],
-							"typeProperties": {
-								"expression": {
-									"value": "@not(equals(activity('Translate JSON Variables').output.result.ExtractControlQuery, '')) ",
-									"type": "Expression"
-								},
-								"ifTrueActivities": [
-									{
-										"name": "Lookup the Next Extract Control",
-										"type": "Lookup",
-										"dependsOn": [],
-										"policy": {
-											"timeout": "7.00:00:00",
-											"retry": 0,
-											"retryIntervalInSeconds": 30,
-											"secureOutput": false,
-											"secureInput": false
-										},
-										"userProperties": [],
-										"typeProperties": {
-											"source": {
-												"type": "AzureSqlSource",
-												"sqlReaderQuery": {
-													"value": "@activity('Translate JSON Variables').output.result.ExtractControlQuery",
-													"type": "Expression"
-												}
-											},
-											"dataset": {
-												"referenceName": "AzureSqlDB_Dataset",
-												"type": "DatasetReference",
-												"parameters": {
-													"DatabaseServerName": {
-														"value": "@activity('Translate JSON Variables').output.result.DatabaseServerName",
-														"type": "Expression"
-													},
-													"DatabaseName": {
-														"value": "@activity('Translate JSON Variables').output.result.DatabaseName",
-														"type": "Expression"
-													}
-												}
-											}
-										}
-									}
-								]
-							}
-						},
-						{
-							"name": "Import Data",
-							"type": "Copy",
-							"dependsOn": [
-								{
-									"activity": "If Extract Control Applies",
-									"dependencyConditions": [
-										"Succeeded"
-									]
-								}
-							],
-							"policy": {
-								"timeout": "7.00:00:00",
-								"retry": 0,
-								"retryIntervalInSeconds": 30,
-								"secureOutput": false,
-								"secureInput": false
-							},
-							"userProperties": [],
-							"typeProperties": {
-								"source": {
-									"type": "AzureSqlSource",
-									"sqlReaderQuery": {
-										"value": "@activity('Translate JSON Variables').output.result.ExtractQuery",
-										"type": "Expression"
-									}
-								},
-								"sink": {
-									"type": "ParquetSink",
-									"storeSettings": {
-										"type": "AzureBlobFSWriteSetting"
-									}
-								},
-								"enableStaging": false,
-								"dataIntegrationUnits": 0
-							},
-							"inputs": [
-								{
-									"referenceName": "AzureSqlDB_Dataset",
-									"type": "DatasetReference",
-									"parameters": {
-										"DatabaseServerName": {
-											"value": "@activity('Translate JSON Variables').output.result.DatabaseServerName",
-											"type": "Expression"
-										},
-										"DatabaseName": {
-											"value": "@activity('Translate JSON Variables').output.result.DatabaseName",
-											"type": "Expression"
-										}
-									}
-								}
-							],
-							"outputs": [
-								{
-									"referenceName": "ParquetBlobStorage_Dataset",
-									"type": "DatasetReference",
-									"parameters": {
-										"FilePath": {
-											"value": "@{activity('Translate JSON Variables').output.result.Scope}/@{activity('Translate JSON Variables').output.result.SourceSystem}/@{activity('Translate JSON Variables').output.result.EntityName}/Current",
-											"type": "Expression"
-										},
-										"FileName": {
-											"value": "@{activity('Translate JSON Variables').output.result.EntityName}.parquet",
-											"type": "Expression"
-										}
-									}
-								}
-							]
-						},
-						{
 							"name": "Indicate Success",
 							"type": "SqlServerStoredProcedure",
-							"dependsOn": [
-								{
-									"activity": "Import Data",
-									"dependencyConditions": [
-										"Succeeded"
-									]
-								}
-							],
+							"dependsOn": [],
 							"policy": {
 								"timeout": "7.00:00:00",
 								"retry": 0,
@@ -297,14 +163,7 @@
 						{
 							"name": "Indicate Failure",
 							"type": "SqlServerStoredProcedure",
-							"dependsOn": [
-								{
-									"activity": "Import Data",
-									"dependencyConditions": [
-										"Failed"
-									]
-								}
-							],
+							"dependsOn": [],
 							"policy": {
 								"timeout": "7.00:00:00",
 								"retry": 0,
@@ -373,68 +232,6 @@
 								"referenceName": "AzureFunctions",
 								"type": "LinkedServiceReference"
 							}
-						},
-						{
-							"name": "If Incremental Set Next Extract Control",
-							"type": "IfCondition",
-							"dependsOn": [
-								{
-									"activity": "Indicate Success",
-									"dependencyConditions": [
-										"Succeeded"
-									]
-								}
-							],
-							"userProperties": [],
-							"typeProperties": {
-								"expression": {
-									"value": "@not(equals(activity('Translate JSON Variables').output.result.ExtractControlQuery, '')) ",
-									"type": "Expression"
-								},
-								"ifTrueActivities": [
-									{
-										"name": "Set Next Extract Control Value",
-										"description": "Update the ExtractControl for this Process Entity",
-										"type": "SqlServerStoredProcedure",
-										"dependsOn": [],
-										"policy": {
-											"timeout": "7.00:00:00",
-											"retry": 0,
-											"retryIntervalInSeconds": 30,
-											"secureOutput": false,
-											"secureInput": false
-										},
-										"userProperties": [],
-										"typeProperties": {
-											"storedProcedureName": "[Process].[up_SetOverrideVariable]",
-											"storedProcedureParameters": {
-												"EntityKey": {
-													"value": {
-														"value": "@item().EntityKey",
-														"type": "Expression"
-													},
-													"type": "Int32"
-												},
-												"VariableName": {
-													"value": "$.ExtractControl",
-													"type": "String"
-												},
-												"VariableValue": {
-													"value": {
-														"value": "@string(activity('Lookup the Next Extract Control').output.firstRow.ExtractControl)",
-														"type": "Expression"
-													},
-													"type": "String"
-												}
-											}
-										},
-										"linkedServiceName": {
-											"referenceName": "ControlDB",
-											"type": "LinkedServiceReference"
-										}
-									}
-								]
-							}
 						}
 					]
 				}
@@ -449,7 +246,7 @@
 		"variables": {
 			"ProcessTypeKey": {
 				"type": "String",
-				"defaultValue": "1"
+				"defaultValue": "7"
 			}
 		},
 		"annotations": []
