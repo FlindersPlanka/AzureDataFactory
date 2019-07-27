@@ -413,7 +413,11 @@
 											"value": "@activity('Translate JSON Variables').output.result.RelativeUrl",
 											"type": "Expression"
 										},
-										"PaginationJsonPath": "$.navigationLinks[2].href"
+										"PaginationJsonPath": "$.dummy-no-paging",
+										"ApiKey": {
+											"value": "@activity('Translate JSON Variables').output.result.ApiKey",
+											"type": "Expression"
+										}
 									}
 								}
 							],
@@ -601,6 +605,10 @@
 										},
 										"PaginationJsonPath": {
 											"value": "@activity('Translate JSON Variables').output.result.PaginationJsonPath",
+											"type": "Expression"
+										},
+										"ApiKey": {
+											"value": "@activity('Translate JSON Variables').output.result.ApiKey",
 											"type": "Expression"
 										}
 									}
