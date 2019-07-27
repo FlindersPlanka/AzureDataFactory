@@ -1,7 +1,7 @@
 {
 	"name": "_Process Type 7 - REST API to Blob",
 	"properties": {
-		"description": "Extract data from a REST API into parquet format in Azure Blob Storage.",
+		"description": "Extract data from a REST API into JSON format in Azure Blob Storage.",
 		"activities": [
 			{
 				"name": "Get Entities to Process",
