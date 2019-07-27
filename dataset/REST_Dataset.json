@@ -14,7 +14,8 @@
 				"type": "string"
 			},
 			"ApiKey": {
-				"type": "securestring"
+				"type": "string",
+				"defaultValue": "c703966d-bd22-4753-8b3c-563150b268f7"
 			}
 		},
 		"folder": {
