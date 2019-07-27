@@ -123,7 +123,14 @@
 						{
 							"name": "Indicate Success",
 							"type": "SqlServerStoredProcedure",
-							"dependsOn": [],
+							"dependsOn": [
+								{
+									"activity": "Get all other pages from REST API",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
 							"policy": {
 								"timeout": "7.00:00:00",
 								"retry": 0,
@@ -163,7 +170,14 @@
 						{
 							"name": "Indicate Failure",
 							"type": "SqlServerStoredProcedure",
-							"dependsOn": [],
+							"dependsOn": [
+								{
+									"activity": "Get all other pages from REST API",
+									"dependencyConditions": [
+										"Failed"
+									]
+								}
+							],
 							"policy": {
 								"timeout": "7.00:00:00",
 								"retry": 0,
@@ -412,7 +426,10 @@
 									"referenceName": "JsonFile_Dataset",
 									"type": "DatasetReference",
 									"parameters": {
-										"FilePath": "fayaz",
+										"FilePath": {
+											"value": "@{activity('Translate JSON Variables').output.result.Scope}/@{activity('Translate JSON Variables').output.result.SourceSystem}/@{activity('Translate JSON Variables').output.result.EntityName}/Current",
+											"type": "Expression"
+										},
 										"FileName": "classification-schemes-page1.json"
 									}
 								}
