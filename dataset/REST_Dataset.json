@@ -1,6 +1,7 @@
 {
 	"name": "REST_Dataset",
 	"properties": {
+		"description": "Dataset for JSON response from REST API.",
 		"linkedServiceName": {
 			"referenceName": "RESTService",
 			"type": "LinkedServiceReference"
@@ -11,6 +12,9 @@
 			},
 			"NextPageUrl": {
 				"type": "string"
+			},
+			"ApiKey": {
+				"type": "securestring"
 			}
 		},
 		"folder": {
@@ -25,7 +29,10 @@
 			},
 			"requestMethod": "GET",
 			"additionalHeaders": {
-				"api-key": "c703966d-bd22-4753-8b3c-563150b268f7"
+				"api-key": {
+					"value": "@dataset().ApiKey",
+					"type": "Expression"
+				}
 			},
 			"paginationRules": {
 				"AbsoluteUrl": {
