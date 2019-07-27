@@ -234,7 +234,7 @@
 							}
 						},
 						{
-							"name": "Return first page from REST API",
+							"name": "Get the first page from REST API",
 							"description": "A dummy NextPageUrl is used to ensure that only a single page is returned.  The other pages are returned in the second GET from the REST API.  \nThis is done since there is no way (yet) to use an expression in the determination of NextPageUrl and the nature of the JSON response may make it hard to determine the right JSON node to use for NextPageUrl without an expression.  ",
 							"type": "Copy",
 							"dependsOn": [
@@ -419,11 +419,11 @@
 							]
 						},
 						{
-							"name": "Copy2",
+							"name": "Get all other pages from REST API",
 							"type": "Copy",
 							"dependsOn": [
 								{
-									"activity": "Return first page from REST API",
+									"activity": "Get the first page from REST API",
 									"dependencyConditions": [
 										"Succeeded"
 									]
