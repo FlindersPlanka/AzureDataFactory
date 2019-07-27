@@ -10,7 +10,7 @@
 			"RelativeUrl": {
 				"type": "string"
 			},
-			"NextPageUrl": {
+			"PaginationJsonPath": {
 				"type": "string"
 			},
 			"ApiKey": {
@@ -37,7 +37,7 @@
 			},
 			"paginationRules": {
 				"AbsoluteUrl": {
-					"value": "@dataset().NextPageUrl",
+					"value": "dataset().PaginationJsonPath",
 					"type": "Expression"
 				}
 			}
