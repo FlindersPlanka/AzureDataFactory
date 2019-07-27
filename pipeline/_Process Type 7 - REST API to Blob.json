@@ -430,7 +430,10 @@
 											"value": "@{activity('Translate JSON Variables').output.result.Scope}/@{activity('Translate JSON Variables').output.result.SourceSystem}/@{activity('Translate JSON Variables').output.result.EntityName}/Current",
 											"type": "Expression"
 										},
-										"FileName": "classification-schemes-page1.json"
+										"FileName": {
+											"value": "@{activity('Translate JSON Variables').output.result.EntityName}-page1.json",
+											"type": "Expression"
+										}
 									}
 								}
 							]
@@ -616,8 +619,14 @@
 									"referenceName": "JsonFile_Dataset",
 									"type": "DatasetReference",
 									"parameters": {
-										"FilePath": "fayaz",
-										"FileName": "classification-schemes-remainingpages.json"
+										"FilePath": {
+											"value": "@{activity('Translate JSON Variables').output.result.Scope}/@{activity('Translate JSON Variables').output.result.SourceSystem}/@{activity('Translate JSON Variables').output.result.EntityName}/Current",
+											"type": "Expression"
+										},
+										"FileName": {
+											"value": "@{activity('Translate JSON Variables').output.result.EntityName}-remainder.json",
+											"type": "Expression"
+										}
 									}
 								}
 							]
