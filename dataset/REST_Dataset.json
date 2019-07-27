@@ -37,7 +37,7 @@
 			},
 			"paginationRules": {
 				"AbsoluteUrl": {
-					"value": "dataset().PaginationJsonPath",
+					"value": "@dataset().PaginationJsonPath",
 					"type": "Expression"
 				}
 			}
