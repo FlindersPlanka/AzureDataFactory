@@ -6,8 +6,8 @@
 		"annotations": [],
 		"type": "AzureFunction",
 		"typeProperties": {
-			"functionAppUrl": "https://flp2d2fnanalytics01d.azurewebsites.net",
-			"encryptedCredential": "ew0KICAiVmVyc2lvbiI6ICIyMDE3LTExLTMwIiwNCiAgIlByb3RlY3Rpb25Nb2RlIjogIktleSIsDQogICJTZWNyZXRDb250ZW50VHlwZSI6ICJQbGFpbnRleHQiLA0KICAiQ3JlZGVudGlhbElkIjogIkZMUDJEMkRGQU5BTFlUSUNTMDFEXzgzYzQ1MWRjLWYyZmEtNDI5Yi1iYmE0LTk5NDZmNTE5YTk5YyINCn0="
+			"functionAppUrl": "https://micksfunctionapptest.azurewebsites.net",
+			"encryptedCredential": "ew0KICAiVmVyc2lvbiI6ICIyMDE3LTExLTMwIiwNCiAgIlByb3RlY3Rpb25Nb2RlIjogIktleSIsDQogICJTZWNyZXRDb250ZW50VHlwZSI6ICJQbGFpbnRleHQiLA0KICAiQ3JlZGVudGlhbElkIjogIkZMUDJEMkRGQU5BTFlUSUNTMDFEXzQ3NTk4Y2JiLTgyMTgtNGM0ZS1hYWE1LTNhYmRlNmVhODI0MCINCn0="
 		}
 	}
 }
