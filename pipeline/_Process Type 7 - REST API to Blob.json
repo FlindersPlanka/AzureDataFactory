@@ -413,7 +413,7 @@
 											"value": "@activity('Translate JSON Variables').output.result.RelativeUrl",
 											"type": "Expression"
 										},
-										"NextPageUrl": "$.dummy-no-paging"
+										"PaginationJsonPath": "$.dummy-no-paging"
 									}
 								}
 							],
@@ -599,8 +599,8 @@
 											"value": "@activity('Translate JSON Variables').output.result.SecondPageRelativeUrl",
 											"type": "Expression"
 										},
-										"NextPageUrl": {
-											"value": "@activity('Translate JSON Variables').output.result.NextPageUrlJsonPath",
+										"PaginationJsonPath": {
+											"value": "@activity('Translate JSON Variables').output.result.PaginationJsonPath",
 											"type": "Expression"
 										}
 									}
