@@ -5,9 +5,14 @@
 		"annotations": [],
 		"type": "RestService",
 		"typeProperties": {
-			"url": "https://flinders-dev.elsevierpure.com/ws/api/514/",
+			"url": "@{linkedService().BaseUrl}",
 			"enableServerCertificateValidation": false,
 			"authenticationType": "Anonymous"
+		}
+	},
+	"parameters": {
+		"BaseUrl": {
+			"type": "String"
 		}
 	}
 }
