@@ -1,0 +1,15 @@
+{
+	"name": "ControlDB_Dataset",
+	"properties": {
+		"description": "A dataset originating from the Control DB.",
+		"linkedServiceName": {
+			"referenceName": "ControlDB",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Final Datasets"
+		},
+		"type": "AzureSqlTable",
+		"schema": []
+	}
+}

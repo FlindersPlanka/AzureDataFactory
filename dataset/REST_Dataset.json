@@ -1,0 +1,36 @@
+{
+	"name": "REST_Dataset",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "RESTService",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"RelativeUrl": {
+				"type": "string"
+			},
+			"NextPageUrl": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "RestResource",
+		"typeProperties": {
+			"relativeUrl": {
+				"value": "@dataset().RelativeUrl",
+				"type": "Expression"
+			},
+			"requestMethod": "GET",
+			"additionalHeaders": {
+				"api-key": "c703966d-bd22-4753-8b3c-563150b268f7"
+			},
+			"paginationRules": {
+				"AbsoluteUrl": {
+					"value": "@dataset().NextPageUrl",
+					"type": "Expression"
+				}
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

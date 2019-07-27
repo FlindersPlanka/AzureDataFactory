@@ -1,0 +1,35 @@
+{
+	"name": "AzureSqlDB_Dataset",
+	"properties": {
+		"description": "A dataset originating from Azure SQL DB.",
+		"linkedServiceName": {
+			"referenceName": "AzureSqlDB",
+			"type": "LinkedServiceReference",
+			"parameters": {
+				"DatabaseServerName": {
+					"value": "@dataset().DatabaseServerName",
+					"type": "Expression"
+				},
+				"DatabaseName": {
+					"value": "@dataset().DatabaseName",
+					"type": "Expression"
+				}
+			}
+		},
+		"parameters": {
+			"DatabaseServerName": {
+				"type": "string",
+				"defaultValue": "planka.database.windows.net"
+			},
+			"DatabaseName": {
+				"type": "string",
+				"defaultValue": "WideWorldImporters"
+			}
+		},
+		"folder": {
+			"name": "Final Datasets"
+		},
+		"type": "AzureSqlTable",
+		"schema": []
+	}
+}

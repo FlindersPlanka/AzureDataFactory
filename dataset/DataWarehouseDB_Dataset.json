@@ -1,0 +1,26 @@
+{
+	"name": "DataWarehouseDB_Dataset",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "DataWarehouseDB",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"TableName": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "Final Datasets"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"tableName": {
+				"value": "@dataset().TableName",
+				"type": "Expression"
+			}
+		}
+	}
+}
