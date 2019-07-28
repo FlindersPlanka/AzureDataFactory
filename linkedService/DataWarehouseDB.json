@@ -5,14 +5,14 @@
 		"annotations": [],
 		"type": "AzureSqlDatabase",
 		"typeProperties": {
-			"connectionString": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=flp2d2sqanalytics01d.database.windows.net;Initial Catalog=DataWarehouse;User ID=analyticsadmin",
+			"connectionString": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=flp2d2sqanalytics01d.database.windows.net;Initial Catalog=DataWarehouse;User ID=EtlAdmin",
 			"password": {
 				"type": "AzureKeyVaultSecret",
 				"store": {
 					"referenceName": "DataFactoryKeyVault",
 					"type": "LinkedServiceReference"
 				},
-				"secretName": "SqlServerAdminPassword"
+				"secretName": "EtlAdminPassword"
 			}
 		}
 	}
