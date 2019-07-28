@@ -58,8 +58,7 @@
 							},
 							"dataset": {
 								"referenceName": "ControlDB_Dataset",
-								"type": "DatasetReference",
-								"parameters": {}
+								"type": "DatasetReference"
 							},
 							"firstRowOnly": false
 						}
@@ -254,7 +253,6 @@
 									"typeProperties": {
 										"functionName": "TranslateVariables",
 										"method": "POST",
-										"headers": {},
 										"body": {
 											"value": "@item()",
 											"type": "Expression"
