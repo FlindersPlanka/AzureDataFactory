@@ -170,7 +170,7 @@
 									},
 									"ExecutionMessage": {
 										"value": {
-											"value": "Success in Data Factory '@{pipeline().DataFactory}' | Pipeline '@{pipeline().Pipeline}' for '@{activity('Translate JSON Variables').output.result.SourceSystem}.@{activity('Translate JSON Variables').output.result.EntityName}' - Databricks Runsheet URL: @{activity('Process History and Changeset').output.runPageUrl} | Runtime (ms):  @{activity('Process History and Changeset').output.executionDuration}",
+											"value": "Success in Data Factory '@{pipeline().DataFactory}' | Pipeline '@{pipeline().Pipeline}' for '@{activity('Translate JSON Variables').output.result.SourceSystem}.@{activity('Translate JSON Variables').output.result.EntityName}' - Databricks Runsheet URL: @{activity('Deconstruct JSON into Table').output.runPageUrl} | Runtime (ms):  @{activity('Deconstruct JSON into Table').output.executionDuration}",
 											"type": "Expression"
 										},
 										"type": "String"
@@ -213,7 +213,7 @@
 									},
 									"ExecutionMessage": {
 										"value": {
-											"value": "Error in Data Factory '@{pipeline().DataFactory}' | Pipeline '@{pipeline().Pipeline}' for '@{activity('Translate JSON Variables').output.result.SourceSystem}.@{activity('Translate JSON Variables').output.result.EntityName}' - Databricks Runsheet URL: @{activity('Process History and Changeset').output.runPageUrl} | Runtime (ms):  @{activity('Process History and Changeset').output.executionDuration}",
+											"value": "Error in Data Factory '@{pipeline().DataFactory}' | Pipeline '@{pipeline().Pipeline}' for '@{activity('Translate JSON Variables').output.result.SourceSystem}.@{activity('Translate JSON Variables').output.result.EntityName}' - Databricks Runsheet URL: @{activity('Deconstruct JSON into Table').output.runPageUrl} | Runtime (ms):  @{activity('Deconstruct JSON into Table').output.executionDuration}",
 											"type": "Expression"
 										},
 										"type": "String"
