@@ -9,6 +9,7 @@
 		"folder": {
 			"name": "Final Datasets"
 		},
+		"annotations": [],
 		"type": "AzureSqlTable",
 		"schema": []
 	}
