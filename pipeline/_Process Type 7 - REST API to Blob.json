@@ -155,7 +155,7 @@
 									},
 									"ExecutionMessage": {
 										"value": {
-											"value": "@{activity('Translate JSON Variables').output.result.SourceSystem}.@{activity('Translate JSON Variables').output.result.EntityName} - Success.",
+											"value": "@{activity('Translate JSON Variables').output.result.SourceSystem}.@{activity('Translate JSON Variables').output.result.EntityName} - Pages read: @add(int(activity('Get all other pages from REST API').output.rowsRead}), 1) | Pages written: @add(int(activity('Get all other pages from REST API').output.rowsCopied}), 1)",
 											"type": "Expression"
 										},
 										"type": "String"
