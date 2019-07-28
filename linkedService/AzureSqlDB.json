@@ -13,10 +13,18 @@
 				"defaultValue": "WideWorldImporters"
 			}
 		},
+		"annotations": [],
 		"type": "AzureSqlDatabase",
 		"typeProperties": {
-			"connectionString": "integrated security=False;encrypt=True;connection timeout=30;data source=@{linkedService().DatabaseServerName};initial catalog=@{linkedService().DatabaseName};user id=flindersadmin",
-			"encryptedCredential": "ew0KICAiVmVyc2lvbiI6ICIyMDE3LTExLTMwIiwNCiAgIlByb3RlY3Rpb25Nb2RlIjogIktleSIsDQogICJTZWNyZXRDb250ZW50VHlwZSI6ICJQbGFpbnRleHQiLA0KICAiQ3JlZGVudGlhbElkIjogIkFERkZMSU5ERVJTVU5JQU5BTFlUSUNTX2EzMDNjNThkLTc4MGMtNGZkMy1hMWE0LWI3NmQxZDFjYTExZSINCn0="
+			"connectionString": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=@{linkedService().DatabaseServerName};Initial Catalog=@{linkedService().DatabaseName};User ID=EtlAdmin",
+			"password": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"referenceName": "DataFactoryKeyVault",
+					"type": "LinkedServiceReference"
+				},
+				"secretName": "EtlAdminPassword"
+			}
 		}
 	}
 }
