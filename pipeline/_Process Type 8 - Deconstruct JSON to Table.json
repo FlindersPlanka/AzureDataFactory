@@ -23,8 +23,8 @@
 					},
 					"activities": [
 						{
-							"name": "Process History and Changeset",
-							"description": "This Notebook will process each record and record History and, if required, determine the Changeset of this newly arriving data",
+							"name": "Deconstruct JSON into Table",
+							"description": "This Notebook will record History and deconstruct the JSON structure into a tabular format.",
 							"type": "DatabricksNotebook",
 							"dependsOn": [
 								{
@@ -43,7 +43,7 @@
 							},
 							"userProperties": [],
 							"typeProperties": {
-								"notebookPath": "/Analytics/_Save to History and Determine Changeset",
+								"notebookPath": "/Analytics/_Deconstruct JSON to Tabular",
 								"baseParameters": {
 									"SourceSystem": {
 										"value": "@activity('Translate JSON Variables').output.result.SourceSystem",
@@ -53,20 +53,16 @@
 										"value": "@activity('Translate JSON Variables').output.result.EntityName",
 										"type": "Expression"
 									},
-									"PrimaryKeyColumnList": {
-										"value": "@activity('Translate JSON Variables').output.result.PrimaryKeyColumnList",
-										"type": "Expression"
-									},
 									"Scope": {
 										"value": "@activity('Translate JSON Variables').output.result.Scope",
 										"type": "Expression"
 									},
-									"DataDate": {
-										"value": "@string(activity('Lookup the Data Date').output.firstRow.DataDate)",
+									"DeconstructionSql": {
+										"value": "@activity('Translate JSON Variables').output.result.DeconstructionSql",
 										"type": "Expression"
 									},
-									"DatasetType": {
-										"value": "@activity('Translate JSON Variables').output.result.DatasetType",
+									"DeconstructedTableName": {
+										"value": "@activity('Translate JSON Variables').output.result.DeconstructedTableName",
 										"type": "Expression"
 									}
 								}
@@ -144,7 +140,7 @@
 							"type": "SqlServerStoredProcedure",
 							"dependsOn": [
 								{
-									"activity": "Process History and Changeset",
+									"activity": "Deconstruct JSON into Table",
 									"dependencyConditions": [
 										"Succeeded"
 									]
@@ -191,7 +187,7 @@
 							"type": "SqlServerStoredProcedure",
 							"dependsOn": [
 								{
-									"activity": "Process History and Changeset",
+									"activity": "Deconstruct JSON into Table",
 									"dependencyConditions": [
 										"Failed"
 									]
