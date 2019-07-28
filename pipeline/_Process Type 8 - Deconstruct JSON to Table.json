@@ -49,7 +49,7 @@
 										"value": "@activity('Translate JSON Variables').output.result.SourceSystem",
 										"type": "Expression"
 									},
-									"Entity": {
+									"EntityName": {
 										"value": "@activity('Translate JSON Variables').output.result.EntityName",
 										"type": "Expression"
 									},
@@ -63,6 +63,10 @@
 									},
 									"DeconstructedTableName": {
 										"value": "@activity('Translate JSON Variables').output.result.DeconstructedTableName",
+										"type": "Expression"
+									},
+									"DataDate": {
+										"value": "@string(activity('Lookup the Data Date').output.firstRow.DataDate)",
 										"type": "Expression"
 									}
 								}
