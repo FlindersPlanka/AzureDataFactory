@@ -1,0 +1,118 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory Name",
+			"defaultValue": "flp2d2dfanalytics01d"
+		},
+		"AzureSqlDB_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'AzureSqlDB'"
+		},
+		"ControlDB_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'ControlDB'"
+		},
+		"DataWarehouseDB_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'DataWarehouseDB'"
+		},
+		"JsonFile_Dataset_properties_typeProperties_fileName": {
+			"type": "string",
+			"defaultValue": "@dataset().FileName"
+		},
+		"JsonFile_Dataset_properties_typeProperties_folderPath": {
+			"type": "string",
+			"defaultValue": "@dataset().FilePath"
+		},
+		"BlobStorage_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://flp2d2stanalytics01d.dfs.core.windows.net"
+		},
+		"DataFactoryKeyVault_properties_typeProperties_baseUrl": {
+			"type": "string",
+			"defaultValue": "https://flp2d2kvdatafactory01d.vault.azure.net/"
+		},
+		"RESTService_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "@{linkedService().BaseUrl}"
+		},
+		"containerUri": {
+			"type": "string",
+			"metadata": "URI to storage account containing linked ARM templates"
+		},
+		"containerSasToken": {
+			"type": "string",
+			"metadata": "Sas Token to storage account containing linked ARM templates"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "ArmTemplate_0",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_0.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					},
+					"AzureSqlDB_connectionString": {
+						"value": "[parameters('AzureSqlDB_connectionString')]"
+					},
+					"ControlDB_connectionString": {
+						"value": "[parameters('ControlDB_connectionString')]"
+					},
+					"DataWarehouseDB_connectionString": {
+						"value": "[parameters('DataWarehouseDB_connectionString')]"
+					},
+					"DataFactoryKeyVault_properties_typeProperties_baseUrl": {
+						"value": "[parameters('DataFactoryKeyVault_properties_typeProperties_baseUrl')]"
+					},
+					"RESTService_properties_typeProperties_url": {
+						"value": "[parameters('RESTService_properties_typeProperties_url')]"
+					},
+					"BlobStorage_properties_typeProperties_url": {
+						"value": "[parameters('BlobStorage_properties_typeProperties_url')]"
+					},
+					"JsonFile_Dataset_properties_typeProperties_fileName": {
+						"value": "[parameters('JsonFile_Dataset_properties_typeProperties_fileName')]"
+					},
+					"JsonFile_Dataset_properties_typeProperties_folderPath": {
+						"value": "[parameters('JsonFile_Dataset_properties_typeProperties_folderPath')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "ArmTemplate_1",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_1.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'ArmTemplate_0')]"
+			]
+		}
+	]
+}

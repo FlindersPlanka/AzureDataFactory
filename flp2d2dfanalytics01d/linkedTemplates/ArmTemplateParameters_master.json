@@ -1,0 +1,39 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "flp2d2dfanalytics01d"
+		},
+		"AzureSqlDB_connectionString": {
+			"value": ""
+		},
+		"ControlDB_connectionString": {
+			"value": ""
+		},
+		"DataWarehouseDB_connectionString": {
+			"value": ""
+		},
+		"JsonFile_Dataset_properties_typeProperties_fileName": {
+			"value": "@dataset().FileName"
+		},
+		"JsonFile_Dataset_properties_typeProperties_folderPath": {
+			"value": "@dataset().FilePath"
+		},
+		"BlobStorage_properties_typeProperties_url": {
+			"value": "https://flp2d2stanalytics01d.dfs.core.windows.net"
+		},
+		"DataFactoryKeyVault_properties_typeProperties_baseUrl": {
+			"value": "https://flp2d2kvdatafactory01d.vault.azure.net/"
+		},
+		"RESTService_properties_typeProperties_url": {
+			"value": "@{linkedService().BaseUrl}"
+		},
+		"containerUri": {
+			"value": ""
+		},
+		"containerSasToken": {
+			"value": ""
+		}
+	}
+}
