@@ -1,10 +1,6 @@
 {
 	"name": "DelimitedTextFile_Dataset",
 	"properties": {
-		"linkedServiceName": {
-			"referenceName": "FileServer1",
-			"type": "LinkedServiceReference"
-		},
 		"parameters": {
 			"FilePath": {
 				"type": "string"
