@@ -14,7 +14,10 @@
 				"type": "string"
 			},
 			"ApiKey": {
-				"type": "securestring"
+				"type": "string"
+			},
+			"Authorization": {
+				"type": "string"
 			}
 		},
 		"folder": {
