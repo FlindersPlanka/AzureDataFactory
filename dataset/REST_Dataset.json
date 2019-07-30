@@ -33,7 +33,7 @@
 			"requestMethod": "GET",
 			"additionalHeaders": {
 				"Authorization": {
-					"value": "@if(equals(dataset().Authorization, ''), '-1', dataset().Authorization)",
+					"value": "@dataset().Authorization",
 					"type": "Expression"
 				},
 				"api-key": {
