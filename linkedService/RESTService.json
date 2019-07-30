@@ -2,17 +2,17 @@
 	"name": "RESTService",
 	"type": "Microsoft.DataFactory/factories/linkedservices",
 	"properties": {
+		"parameters": {
+			"BaseUrl": {
+				"type": "String"
+			}
+		},
 		"annotations": [],
 		"type": "RestService",
 		"typeProperties": {
 			"url": "@{linkedService().BaseUrl}",
-			"enableServerCertificateValidation": false,
+			"enableServerCertificateValidation": true,
 			"authenticationType": "Anonymous"
-		}
-	},
-	"parameters": {
-		"BaseUrl": {
-			"type": "String"
 		}
 	}
 }
