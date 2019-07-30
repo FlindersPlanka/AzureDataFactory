@@ -417,6 +417,10 @@
 										"ApiKey": {
 											"value": "@activity('Translate JSON Variables').output.result.ApiKey",
 											"type": "Expression"
+										},
+										"Authorization": {
+											"value": "@activity('Translate JSON Variables').output.result.Authorization",
+											"type": "Expression"
 										}
 									}
 								}
@@ -609,6 +613,10 @@
 										},
 										"ApiKey": {
 											"value": "@activity('Translate JSON Variables').output.result.ApiKey",
+											"type": "Expression"
+										},
+										"Authorization": {
+											"value": "@activity('Translate JSON Variables').output.result.Authorization",
 											"type": "Expression"
 										}
 									}
