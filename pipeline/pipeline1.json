@@ -3,8 +3,8 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Web1",
-				"type": "WebActivity",
+				"name": "Copy Data1",
+				"type": "Copy",
 				"dependsOn": [],
 				"policy": {
 					"timeout": "7.00:00:00",
@@ -15,14 +15,32 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"method": "GET",
-					"datasets": [
-						{
-							"referenceName": "MicksRest_Dataset",
-							"type": "DatasetReference"
+					"source": {
+						"type": "RestSource",
+						"httpRequestTimeout": "00:01:40",
+						"requestInterval": "00.00:00:00.010"
+					},
+					"sink": {
+						"type": "AzureBlobFSSink"
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "MicksRest_Dataset",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "JsonFile_Dataset",
+						"type": "DatasetReference",
+						"parameters": {
+							"FilePath": "dev/MicksTest",
+							"FileName": "MicksTest.json"
 						}
-					]
-				}
+					}
+				]
 			}
 		],
 		"annotations": []
