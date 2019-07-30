@@ -4,7 +4,13 @@
 		"description": "Dataset for JSON response from REST API.",
 		"linkedServiceName": {
 			"referenceName": "RESTService",
-			"type": "LinkedServiceReference"
+			"type": "LinkedServiceReference",
+			"parameters": {
+				"BaseUrl": {
+					"value": "@dataset().BaseUrl",
+					"type": "Expression"
+				}
+			}
 		},
 		"parameters": {
 			"RelativeUrl": {
@@ -17,6 +23,9 @@
 				"type": "string"
 			},
 			"Authorization": {
+				"type": "string"
+			},
+			"BaseUrl": {
 				"type": "string"
 			}
 		},
