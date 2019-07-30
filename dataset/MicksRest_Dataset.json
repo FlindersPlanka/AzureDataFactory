@@ -11,7 +11,8 @@
 			"relativeUrl": "Curriculum/List",
 			"requestMethod": "GET",
 			"additionalHeaders": {
-				"Authorization": "Basic dGVzdDAwMDE6dEsySlNURnk3VnFVNlc1"
+				"Authorization": "Basic dGVzdDAwMDE6dEsySlNURnk3VnFVNlc1",
+				"api-key": "-1"
 			}
 		}
 	}
