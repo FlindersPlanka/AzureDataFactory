@@ -11,7 +11,8 @@
 			"relativeUrl": "Curriculum/List",
 			"requestMethod": "GET",
 			"additionalHeaders": {
-				"Authorization": "Basic {base64_encode(test0001:tK2JSTFy7VqU6W5)}"
+				"Authorization": "Basic {base64_encode(test0001:tK2JSTFy7VqU6W5)}",
+				"content-type": "application/json"
 			}
 		}
 	}
