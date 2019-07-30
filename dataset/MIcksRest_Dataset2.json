@@ -11,7 +11,7 @@
 			"relativeUrl": "classification-schemes",
 			"requestMethod": "GET",
 			"additionalHeaders": {
-				"Authorization": "Basic c703966d-bd22-4753-8b3c-563150b268f7:"
+				"api-key": "c703966d-bd22-4753-8b3c-563150b268f7"
 			}
 		}
 	}
