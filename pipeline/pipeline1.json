@@ -1,0 +1,38 @@
+{
+	"name": "pipeline1",
+	"properties": {
+		"activities": [
+			{
+				"name": "Web1",
+				"type": "WebActivity",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"url": "https://flinders-dev.t1cloud.com/T1Default/CiAnywhere/Web/FLINDERS-DEV/Api/WS/v1/Curriculum/List",
+					"method": "GET",
+					"headers": {
+						"Authorization": "Basic {base64_encode(test0001:tK2JSTFy7VqU6W5)}"
+					},
+					"datasets": [
+						{
+							"referenceName": "JsonFile_Dataset",
+							"type": "DatasetReference",
+							"parameters": {
+								"FilePath": "fred",
+								"FileName": "john"
+							}
+						}
+					]
+				}
+			}
+		],
+		"annotations": []
+	}
+}
