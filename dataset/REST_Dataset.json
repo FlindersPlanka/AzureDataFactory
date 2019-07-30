@@ -32,6 +32,10 @@
 			},
 			"requestMethod": "GET",
 			"additionalHeaders": {
+				"Authorization": {
+					"value": "@dataset().Authorization",
+					"type": "Expression"
+				},
 				"api-key": {
 					"value": "@dataset().ApiKey",
 					"type": "Expression"
