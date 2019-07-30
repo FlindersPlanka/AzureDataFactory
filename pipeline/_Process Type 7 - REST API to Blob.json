@@ -421,6 +421,10 @@
 										"Authorization": {
 											"value": "@activity('Translate JSON Variables').output.result.Authorization",
 											"type": "Expression"
+										},
+										"BaseUrl": {
+											"value": "@activity('Translate JSON Variables').output.result.BaseUrl",
+											"type": "Expression"
 										}
 									}
 								}
@@ -617,6 +621,10 @@
 										},
 										"Authorization": {
 											"value": "@activity('Translate JSON Variables').output.result.Authorization",
+											"type": "Expression"
+										},
+										"BaseUrl": {
+											"value": "@activity('Translate JSON Variables').output.result.BaseUrl",
 											"type": "Expression"
 										}
 									}
