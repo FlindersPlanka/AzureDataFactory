@@ -37,7 +37,7 @@
 					"type": "Expression"
 				},
 				"api-key": {
-					"value": "@dataset().ApiKey",
+					"value": "@if(equals(dataset().ApiKey, ''), string(''), dataset().ApiKey)",
 					"type": "Expression"
 				}
 			},
