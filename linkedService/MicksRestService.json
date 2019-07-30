@@ -1,0 +1,13 @@
+{
+	"name": "MicksRestService",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "RestService",
+		"typeProperties": {
+			"url": "https://flinders-dev.t1cloud.com/T1Default/CiAnywhere/Web/FLINDERS-DEV/Api/WS/v1",
+			"enableServerCertificateValidation": true,
+			"authenticationType": "Anonymous"
+		}
+	}
+}
