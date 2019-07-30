@@ -28,7 +28,14 @@
 				"inputs": [
 					{
 						"referenceName": "MicksRest_Dataset",
-						"type": "DatasetReference"
+						"type": "DatasetReference",
+						"parameters": {
+							"Authorization": "Basic dGVzdDAwMDE6dEsySlNURnk3VnFVNlc1",
+							"ApiKey": {
+								"value": "@string('')",
+								"type": "Expression"
+							}
+						}
 					}
 				],
 				"outputs": [

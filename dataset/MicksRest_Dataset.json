@@ -5,13 +5,24 @@
 			"referenceName": "MicksRestService",
 			"type": "LinkedServiceReference"
 		},
+		"parameters": {
+			"Authorization": {
+				"type": "string"
+			},
+			"ApiKey": {
+				"type": "string"
+			}
+		},
 		"annotations": [],
 		"type": "RestResource",
 		"typeProperties": {
 			"relativeUrl": "Curriculum/List",
 			"requestMethod": "GET",
 			"additionalHeaders": {
-				"Authorization": "Basic dGVzdDAwMDE6dEsySlNURnk3VnFVNlc1",
+				"Authorization": {
+					"value": "@dataset().Authorization",
+					"type": "Expression"
+				},
 				"api-key": "-1"
 			}
 		}
