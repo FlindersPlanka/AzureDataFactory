@@ -2922,6 +2922,14 @@
 												"ApiKey": {
 													"value": "@activity('Translate JSON Variables').output.result.ApiKey",
 													"type": "Expression"
+												},
+												"Authorization": {
+													"value": "@activity('Translate JSON Variables').output.result.Authorization",
+													"type": "Expression"
+												},
+												"BaseUrl": {
+													"value": "@activity('Translate JSON Variables').output.result.BaseUrl",
+													"type": "Expression"
 												}
 											}
 										}
@@ -3114,6 +3122,14 @@
 												},
 												"ApiKey": {
 													"value": "@activity('Translate JSON Variables').output.result.ApiKey",
+													"type": "Expression"
+												},
+												"Authorization": {
+													"value": "@activity('Translate JSON Variables').output.result.Authorization",
+													"type": "Expression"
+												},
+												"BaseUrl": {
+													"value": "@activity('Translate JSON Variables').output.result.BaseUrl",
 													"type": "Expression"
 												}
 											}
@@ -3716,7 +3732,13 @@
 				"description": "Dataset for JSON response from REST API.",
 				"linkedServiceName": {
 					"referenceName": "RESTService",
-					"type": "LinkedServiceReference"
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"BaseUrl": {
+							"value": "@dataset().BaseUrl",
+							"type": "Expression"
+						}
+					}
 				},
 				"parameters": {
 					"RelativeUrl": {
@@ -3726,7 +3748,13 @@
 						"type": "string"
 					},
 					"ApiKey": {
-						"type": "securestring"
+						"type": "string"
+					},
+					"Authorization": {
+						"type": "string"
+					},
+					"BaseUrl": {
+						"type": "string"
 					}
 				},
 				"folder": {
@@ -3741,6 +3769,10 @@
 					},
 					"requestMethod": "GET",
 					"additionalHeaders": {
+						"Authorization": {
+							"value": "@dataset().Authorization",
+							"type": "Expression"
+						},
 						"api-key": {
 							"value": "@dataset().ApiKey",
 							"type": "Expression"
@@ -3928,11 +3960,16 @@
 			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"annotations": [],
 				"type": "RestService",
+				"parameters": {
+					"BaseUrl": {
+						"type": "String"
+					}
+				},
+				"annotations": [],
 				"typeProperties": {
 					"url": "[parameters('RESTService_properties_typeProperties_url')]",
-					"enableServerCertificateValidation": false,
+					"enableServerCertificateValidation": true,
 					"authenticationType": "Anonymous"
 				}
 			},

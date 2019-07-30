@@ -45,6 +45,72 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/REST_Dataset')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Dataset for JSON response from REST API.",
+				"linkedServiceName": {
+					"referenceName": "RESTService",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"BaseUrl": {
+							"value": "@dataset().BaseUrl",
+							"type": "Expression"
+						}
+					}
+				},
+				"parameters": {
+					"RelativeUrl": {
+						"type": "string"
+					},
+					"PaginationJsonPath": {
+						"type": "string"
+					},
+					"ApiKey": {
+						"type": "string"
+					},
+					"Authorization": {
+						"type": "string"
+					},
+					"BaseUrl": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Final Datasets"
+				},
+				"annotations": [],
+				"type": "RestResource",
+				"typeProperties": {
+					"relativeUrl": {
+						"value": "@dataset().RelativeUrl",
+						"type": "Expression"
+					},
+					"requestMethod": "GET",
+					"additionalHeaders": {
+						"Authorization": {
+							"value": "@dataset().Authorization",
+							"type": "Expression"
+						},
+						"api-key": {
+							"value": "@dataset().ApiKey",
+							"type": "Expression"
+						}
+					},
+					"paginationRules": {
+						"AbsoluteUrl": {
+							"value": "@dataset().PaginationJsonPath",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/RESTService')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/DataFactoryKeyVault')]",
 			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
@@ -62,65 +128,20 @@
 			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"annotations": [],
 				"type": "RestService",
+				"parameters": {
+					"BaseUrl": {
+						"type": "String"
+					}
+				},
+				"annotations": [],
 				"typeProperties": {
 					"url": "[parameters('RESTService_properties_typeProperties_url')]",
-					"enableServerCertificateValidation": false,
+					"enableServerCertificateValidation": true,
 					"authenticationType": "Anonymous"
 				}
 			},
 			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/REST_Dataset')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "Dataset for JSON response from REST API.",
-				"linkedServiceName": {
-					"referenceName": "RESTService",
-					"type": "LinkedServiceReference"
-				},
-				"parameters": {
-					"RelativeUrl": {
-						"type": "string"
-					},
-					"PaginationJsonPath": {
-						"type": "string"
-					},
-					"ApiKey": {
-						"type": "securestring"
-					}
-				},
-				"folder": {
-					"name": "Final Datasets"
-				},
-				"annotations": [],
-				"type": "RestResource",
-				"typeProperties": {
-					"relativeUrl": {
-						"value": "@dataset().RelativeUrl",
-						"type": "Expression"
-					},
-					"requestMethod": "GET",
-					"additionalHeaders": {
-						"api-key": {
-							"value": "@dataset().ApiKey",
-							"type": "Expression"
-						}
-					},
-					"paginationRules": {
-						"AbsoluteUrl": {
-							"value": "@dataset().PaginationJsonPath",
-							"type": "Expression"
-						}
-					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/RESTService')]"
-			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/AzureDatabricks')]",
