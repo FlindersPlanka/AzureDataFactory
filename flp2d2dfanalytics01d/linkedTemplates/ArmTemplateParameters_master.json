@@ -14,6 +14,9 @@
 		"DataWarehouseDB_connectionString": {
 			"value": ""
 		},
+		"FlindersUniFileServer_password": {
+			"value": ""
+		},
 		"JsonFile_Dataset_properties_typeProperties_fileName": {
 			"value": "@dataset().FileName"
 		},
@@ -28,6 +31,9 @@
 		},
 		"RESTService_properties_typeProperties_url": {
 			"value": "@{linkedService().BaseUrl}"
+		},
+		"FlindersUniFileServer_properties_typeProperties_userId": {
+			"value": "ISD\\wood0781"
 		},
 		"containerUri": {
 			"value": ""
