@@ -1,0 +1,29 @@
+{
+	"name": "DelimitedTextFile_Dataset",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "FlindersUniFileServer",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "FileServerLocation",
+				"fileName": "test.csv",
+				"folderPath": "Data Management/Data Exchange"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"type": "String"
+			},
+			{
+				"type": "String"
+			}
+		]
+	}
+}
