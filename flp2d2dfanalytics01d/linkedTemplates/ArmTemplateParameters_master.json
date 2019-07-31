@@ -29,11 +29,11 @@
 		"DataFactoryKeyVault_properties_typeProperties_baseUrl": {
 			"value": "https://flp2d2kvdatafactory01d.vault.azure.net/"
 		},
-		"RESTService_properties_typeProperties_url": {
-			"value": "@{linkedService().BaseUrl}"
-		},
 		"FlindersUniFileServer_properties_typeProperties_userId": {
 			"value": "ISD\\wood0781"
+		},
+		"RESTService_properties_typeProperties_url": {
+			"value": "@{linkedService().BaseUrl}"
 		},
 		"containerUri": {
 			"value": ""

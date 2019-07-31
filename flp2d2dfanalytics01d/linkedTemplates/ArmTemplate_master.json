@@ -39,13 +39,13 @@
 			"type": "string",
 			"defaultValue": "https://flp2d2kvdatafactory01d.vault.azure.net/"
 		},
-		"RESTService_properties_typeProperties_url": {
-			"type": "string",
-			"defaultValue": "@{linkedService().BaseUrl}"
-		},
 		"FlindersUniFileServer_properties_typeProperties_userId": {
 			"type": "string",
 			"defaultValue": "ISD\\wood0781"
+		},
+		"RESTService_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "@{linkedService().BaseUrl}"
 		},
 		"containerUri": {
 			"type": "string",
@@ -89,11 +89,11 @@
 					"DataFactoryKeyVault_properties_typeProperties_baseUrl": {
 						"value": "[parameters('DataFactoryKeyVault_properties_typeProperties_baseUrl')]"
 					},
-					"RESTService_properties_typeProperties_url": {
-						"value": "[parameters('RESTService_properties_typeProperties_url')]"
-					},
 					"FlindersUniFileServer_properties_typeProperties_userId": {
 						"value": "[parameters('FlindersUniFileServer_properties_typeProperties_userId')]"
+					},
+					"RESTService_properties_typeProperties_url": {
+						"value": "[parameters('RESTService_properties_typeProperties_url')]"
 					},
 					"BlobStorage_properties_typeProperties_url": {
 						"value": "[parameters('BlobStorage_properties_typeProperties_url')]"

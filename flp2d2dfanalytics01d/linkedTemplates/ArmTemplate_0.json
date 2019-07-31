@@ -27,13 +27,13 @@
 			"type": "string",
 			"defaultValue": "https://flp2d2kvdatafactory01d.vault.azure.net/"
 		},
-		"RESTService_properties_typeProperties_url": {
-			"type": "string",
-			"defaultValue": "@{linkedService().BaseUrl}"
-		},
 		"FlindersUniFileServer_properties_typeProperties_userId": {
 			"type": "string",
 			"defaultValue": "ISD\\wood0781"
+		},
+		"RESTService_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "@{linkedService().BaseUrl}"
 		},
 		"BlobStorage_properties_typeProperties_url": {
 			"type": "string",
@@ -66,6 +66,24 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/FlindersUniFileServer')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "FileServer",
+				"typeProperties": {
+					"host": "\\\\isd.ad.flinders.edu.au\\Shares\\PS-Planning",
+					"userId": "[parameters('FlindersUniFileServer_properties_typeProperties_userId')]",
+					"password": {
+						"type": "SecureString",
+						"value": "[parameters('FlindersUniFileServer_password')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/RESTService')]",
 			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
@@ -86,22 +104,38 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/FlindersUniFileServer')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"name": "[concat(parameters('factoryName'), '/DelimitedTextFile_Dataset')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
+				"linkedServiceName": {
+					"referenceName": "FlindersUniFileServer",
+					"type": "LinkedServiceReference"
+				},
 				"annotations": [],
-				"type": "FileServer",
+				"type": "DelimitedText",
 				"typeProperties": {
-					"host": "\\\\isd.ad.flinders.edu.au\\Shares\\PS-Planning",
-					"userId": "[parameters('FlindersUniFileServer_properties_typeProperties_userId')]",
-					"password": {
-						"type": "SecureString",
-						"value": "[parameters('FlindersUniFileServer_password')]"
+					"location": {
+						"type": "FileServerLocation",
+						"fileName": "test.csv",
+						"folderPath": "Data Management/Data Exchange"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
 					}
-				}
+				]
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/FlindersUniFileServer')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/REST_Dataset')]",
@@ -319,40 +353,6 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/DataFactoryKeyVault')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/DelimitedTextFile_Dataset')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "FlindersUniFileServer",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "FileServerLocation",
-						"fileName": "test.csv",
-						"folderPath": "Data Management/Data Exchange"
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"quoteChar": "\""
-				},
-				"schema": [
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					}
-				]
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/FlindersUniFileServer')]"
 			]
 		},
 		{
