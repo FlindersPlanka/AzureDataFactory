@@ -662,7 +662,7 @@
 							"userProperties": [],
 							"typeProperties": {
 								"expression": {
-									"value": "@equals(activity('Translate JSON Variables').output.result.SecondPageRelativeUrl, 'True')",
+									"value": "@equals(activity('Translate JSON Variables').output.result.SaveToHistory, 'True')",
 									"type": "Expression"
 								},
 								"ifTrueActivities": [
