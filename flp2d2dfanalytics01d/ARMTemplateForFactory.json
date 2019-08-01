@@ -3554,6 +3554,69 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/pipeline1')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy Data1",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "FileServerReadSetting",
+									"recursive": true
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSetting"
+								}
+							},
+							"sink": {
+								"type": "ParquetSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSetting"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "DelimitedTextFile_Dataset",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "ParquetBlobStorage_Dataset",
+								"type": "DatasetReference",
+								"parameters": {
+									"FilePath": "dev/MicksTest",
+									"FileName": "patto.parquet"
+								}
+							}
+						]
+					}
+				],
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/DelimitedTextFile_Dataset')]",
+				"[concat(variables('factoryId'), '/datasets/ParquetBlobStorage_Dataset')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/AzureSqlDB_Dataset')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -4036,14 +4099,25 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/pipeline1')]",
+			"name": "[concat(parameters('factoryName'), '/integrationRuntime3')]",
+			"type": "Microsoft.DataFactory/factories/integrationRuntimes",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "SelfHosted",
+				"typeProperties": {}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/_Process Type 7 - REST API to Data Lake')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
+				"description": "Extract data from a REST API and save in JSON format in Azure Data Lake.",
 				"activities": [
 					{
-						"name": "Copy Data1",
-						"type": "Copy",
+						"name": "Get Entities to Process",
+						"type": "Lookup",
 						"dependsOn": [],
 						"policy": {
 							"timeout": "7.00:00:00",
@@ -4055,47 +4129,821 @@
 						"userProperties": [],
 						"typeProperties": {
 							"source": {
-								"type": "DelimitedTextSource",
-								"storeSettings": {
-									"type": "FileServerReadSetting",
-									"recursive": true
-								},
-								"formatSettings": {
-									"type": "DelimitedTextReadSetting"
+								"type": "AzureSqlSource",
+								"sqlReaderStoredProcedureName": "[[Process].[up_GetEntitiesToProcess]",
+								"storedProcedureParameters": {
+									"BatchSize": {
+										"type": "Int32",
+										"value": "999999"
+									},
+									"EntityGroupKeyList": {
+										"type": "String",
+										"value": {
+											"value": "@pipeline().parameters.EntityGroupKeyList",
+											"type": "Expression"
+										}
+									},
+									"ProcessTypeKey": {
+										"type": "Int32",
+										"value": {
+											"value": "@variables('ProcessTypeKey')",
+											"type": "Expression"
+										}
+									}
 								}
 							},
-							"sink": {
-								"type": "ParquetSink",
-								"storeSettings": {
-									"type": "AzureBlobFSWriteSetting"
-								}
-							},
-							"enableStaging": false
-						},
-						"inputs": [
-							{
-								"referenceName": "DelimitedTextFile_Dataset",
+							"dataset": {
+								"referenceName": "ControlDB_Dataset",
 								"type": "DatasetReference",
 								"parameters": {}
+							},
+							"firstRowOnly": false
+						}
+					},
+					{
+						"name": "Filter out Invalid Entities",
+						"description": "If the EntityKey < 0, filter out.  An EntityKey of -1 is used to indicate there are no Entities to Process.",
+						"type": "Filter",
+						"dependsOn": [
+							{
+								"activity": "Get Entities to Process",
+								"dependencyConditions": [
+									"Succeeded"
+								]
 							}
 						],
-						"outputs": [
-							{
-								"referenceName": "ParquetBlobStorage_Dataset",
-								"type": "DatasetReference",
-								"parameters": {
-									"FilePath": "dev/MicksTest",
-									"FileName": "patto.parquet"
-								}
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Get Entities to Process').output.value",
+								"type": "Expression"
+							},
+							"condition": {
+								"value": "@greater(item().EntityKey, 0)",
+								"type": "Expression"
 							}
-						]
+						}
+					},
+					{
+						"name": "Process Entities",
+						"description": "Process each individual Entity.",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "Filter out Invalid Entities",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Filter out Invalid Entities').output.value",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "Set Process Start Time",
+									"description": "Set the LastRunStartTime for this Entity",
+									"type": "SqlServerStoredProcedure",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"storedProcedureName": "[[Process].[up_UpdateEntityProcessStartTime]",
+										"storedProcedureParameters": {
+											"EntityKey": {
+												"value": {
+													"value": "@item().EntityKey",
+													"type": "Expression"
+												},
+												"type": "Int32"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "ControlDB",
+										"type": "LinkedServiceReference"
+									}
+								},
+								{
+									"name": "Indicate Success",
+									"type": "SqlServerStoredProcedure",
+									"dependsOn": [
+										{
+											"activity": "Save to History",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"storedProcedureName": "[[Process].[up_UpdateEntityDiagnostics]",
+										"storedProcedureParameters": {
+											"EntityKey": {
+												"value": {
+													"value": "@item().EntityKey",
+													"type": "Expression"
+												},
+												"type": "Int32"
+											},
+											"Result": {
+												"value": "Success",
+												"type": "String"
+											},
+											"ExecutionMessage": {
+												"value": {
+													"value": "@{activity('Translate JSON Variables').output.result.SourceSystem}.@{activity('Translate JSON Variables').output.result.EntityName} - Pages read: @{add(int(activity('Get all other pages from REST API').output.rowsRead), 1)} | Pages written: @{add(int(activity('Get all other pages from REST API').output.rowsCopied), 1)} | Databricks Runsheet URL: @{activity('Add DataDate and Save to History').output.runPageUrl} | Runtime (ms):  @{activity('Add DataDate and Save to History').output.executionDuration}",
+													"type": "Expression"
+												},
+												"type": "String"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "ControlDB",
+										"type": "LinkedServiceReference"
+									}
+								},
+								{
+									"name": "Indicate Failure 2",
+									"type": "SqlServerStoredProcedure",
+									"dependsOn": [
+										{
+											"activity": "Get all other pages from REST API",
+											"dependencyConditions": [
+												"Failed"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"storedProcedureName": "[[Process].[up_UpdateEntityDiagnostics]",
+										"storedProcedureParameters": {
+											"EntityKey": {
+												"value": {
+													"value": "@item().EntityKey",
+													"type": "Expression"
+												},
+												"type": "Int32"
+											},
+											"ExecutionMessage": {
+												"value": {
+													"value": "Error in Data Factory '@{pipeline().DataFactory}' | Pipeline '@{pipeline().Pipeline}' | Entity '@{activity('Translate JSON Variables').output.result.SourceSystem}.@{activity('Translate JSON Variables').output.result.EntityName}' | @{activity('Get all other pages from REST API').output.errors[0].Message}",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"Result": {
+												"value": "Failure",
+												"type": "String"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "ControlDB",
+										"type": "LinkedServiceReference"
+									}
+								},
+								{
+									"name": "Translate JSON Variables",
+									"description": "Accept four parameters, VariablesJSON, OverrideVariablesJSON, ConfigurationJSON and DefaultsJSON and translate into a recordset where the columns are a representation of the nodes in the resultant JSON.",
+									"type": "AzureFunctionActivity",
+									"dependsOn": [
+										{
+											"activity": "Set Process Start Time",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"functionName": "TranslateVariables",
+										"method": "POST",
+										"headers": {},
+										"body": {
+											"value": "@item()",
+											"type": "Expression"
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "AzureFunctions",
+										"type": "LinkedServiceReference"
+									}
+								},
+								{
+									"name": "Get the first page from REST API",
+									"description": "A dummy NextPageUrl is used to ensure that only a single page is returned.  The other pages are returned in the second GET from the REST API.  \nThis is done since there is no way (yet) to use an expression in the determination of NextPageUrl and the nature of the JSON response may make it hard to determine the right JSON node to use for NextPageUrl without an expression.  ",
+									"type": "Copy",
+									"dependsOn": [
+										{
+											"activity": "Translate JSON Variables",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "RestSource",
+											"httpRequestTimeout": "00:01:40",
+											"requestInterval": "00.00:00:00.010"
+										},
+										"sink": {
+											"type": "AzureBlobFSSink"
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"schemaMapping": {
+												"$.pageInformation.offset": "$.pageInformation.offset",
+												"$.pageInformation.size": "$.pageInformation.size",
+												"pureId": "pureId",
+												"externalId": "externalId",
+												"externalIdSource": "externalIdSource",
+												"uuid": "uuid",
+												"title": "title",
+												"peerReview": "peerReview",
+												"numberOfPages": "numberOfPages",
+												"managingOrganisationalUnit.uuid": "managingOrganisationalUnit.uuid",
+												"managingOrganisationalUnit.link.ref": "managingOrganisationalUnit.link.ref",
+												"managingOrganisationalUnit.link.href": "managingOrganisationalUnit.link.href",
+												"managingOrganisationalUnit.externalId": "managingOrganisationalUnit.externalId",
+												"managingOrganisationalUnit.externalIdSource": "managingOrganisationalUnit.externalIdSource",
+												"managingOrganisationalUnit.names[0].value": "managingOrganisationalUnit.names[0].value",
+												"managingOrganisationalUnit.types[0].value": "managingOrganisationalUnit.types[0].value",
+												"managingOrganisationalUnit.types[0].pureId": "managingOrganisationalUnit.types[0].pureId",
+												"managingOrganisationalUnit.types[0].uri": "managingOrganisationalUnit.types[0].uri",
+												"confidential": "confidential",
+												"info.createdBy": "info.createdBy",
+												"info.createdDate": "info.createdDate",
+												"info.modifiedBy": "info.modifiedBy",
+												"info.modifiedDate": "info.modifiedDate",
+												"info.portalUrl": "info.portalUrl",
+												"info.additionalExternalIds[0].value": "info.additionalExternalIds[0].value",
+												"info.additionalExternalIds[0].idSource": "info.additionalExternalIds[0].idSource",
+												"pages": "pages",
+												"volume": "volume",
+												"journalAssociation.pureId": "journalAssociation.pureId",
+												"journalAssociation.title.value": "journalAssociation.title.value",
+												"journalAssociation.issn.value": "journalAssociation.issn.value",
+												"journalAssociation.journal.uuid": "journalAssociation.journal.uuid",
+												"journalAssociation.journal.link.ref": "journalAssociation.journal.link.ref",
+												"journalAssociation.journal.link.href": "journalAssociation.journal.link.href",
+												"journalAssociation.journal.externalId": "journalAssociation.journal.externalId",
+												"journalAssociation.journal.externalIdSource": "journalAssociation.journal.externalIdSource",
+												"journalAssociation.journal.names[0].value": "journalAssociation.journal.names[0].value",
+												"journalAssociation.journal.types[0].value": "journalAssociation.journal.types[0].value",
+												"journalAssociation.journal.types[0].pureId": "journalAssociation.journal.types[0].pureId",
+												"journalAssociation.journal.types[0].uri": "journalAssociation.journal.types[0].uri",
+												"journalNumber": "journalNumber",
+												"totalNumberOfAuthors": "totalNumberOfAuthors",
+												"types[0].value": "types[0].value",
+												"types[0].pureId": "types[0].pureId",
+												"types[0].uri": "types[0].uri",
+												"categories[0].value": "categories[0].value",
+												"categories[0].pureId": "categories[0].pureId",
+												"categories[0].uri": "categories[0].uri",
+												"publicationStatuses[0].pureId": "publicationStatuses[0].pureId",
+												"publicationStatuses[0].externalId": "publicationStatuses[0].externalId",
+												"publicationStatuses[0].externalIdSource": "publicationStatuses[0].externalIdSource",
+												"publicationStatuses[0].current": "publicationStatuses[0].current",
+												"publicationStatuses[0].publicationDate.year": "publicationStatuses[0].publicationDate.year",
+												"publicationStatuses[0].publicationStatuses[0].value": "publicationStatuses[0].publicationStatuses[0].value",
+												"publicationStatuses[0].publicationStatuses[0].pureId": "publicationStatuses[0].publicationStatuses[0].pureId",
+												"publicationStatuses[0].publicationStatuses[0].uri": "publicationStatuses[0].publicationStatuses[0].uri",
+												"languages[0].value": "languages[0].value",
+												"languages[0].pureId": "languages[0].pureId",
+												"languages[0].uri": "languages[0].uri",
+												"personAssociations[0].pureId": "personAssociations[0].pureId",
+												"personAssociations[0].externalPerson.uuid": "personAssociations[0].externalPerson.uuid",
+												"personAssociations[0].externalPerson.link.ref": "personAssociations[0].externalPerson.link.ref",
+												"personAssociations[0].externalPerson.link.href": "personAssociations[0].externalPerson.link.href",
+												"personAssociations[0].externalPerson.externalId": "personAssociations[0].externalPerson.externalId",
+												"personAssociations[0].externalPerson.externalIdSource": "personAssociations[0].externalPerson.externalIdSource",
+												"personAssociations[0].externalPerson.names[0].value": "personAssociations[0].externalPerson.names[0].value",
+												"personAssociations[0].externalPerson.types[0].value": "personAssociations[0].externalPerson.types[0].value",
+												"personAssociations[0].externalPerson.types[0].pureId": "personAssociations[0].externalPerson.types[0].pureId",
+												"personAssociations[0].externalPerson.types[0].uri": "personAssociations[0].externalPerson.types[0].uri",
+												"personAssociations[0].name.firstName": "personAssociations[0].name.firstName",
+												"personAssociations[0].name.lastName": "personAssociations[0].name.lastName",
+												"personAssociations[0].personRoles[0].value": "personAssociations[0].personRoles[0].value",
+												"personAssociations[0].personRoles[0].pureId": "personAssociations[0].personRoles[0].pureId",
+												"personAssociations[0].personRoles[0].uri": "personAssociations[0].personRoles[0].uri",
+												"personAssociations[0].externalOrganisations[0].uuid": "personAssociations[0].externalOrganisations[0].uuid",
+												"personAssociations[0].externalOrganisations[0].link.ref": "personAssociations[0].externalOrganisations[0].link.ref",
+												"personAssociations[0].externalOrganisations[0].link.href": "personAssociations[0].externalOrganisations[0].link.href",
+												"personAssociations[0].externalOrganisations[0].externalId": "personAssociations[0].externalOrganisations[0].externalId",
+												"personAssociations[0].externalOrganisations[0].externalIdSource": "personAssociations[0].externalOrganisations[0].externalIdSource",
+												"personAssociations[0].externalOrganisations[0].names[0].value": "personAssociations[0].externalOrganisations[0].names[0].value",
+												"personAssociations[0].externalOrganisations[0].types[0].value": "personAssociations[0].externalOrganisations[0].types[0].value",
+												"personAssociations[0].externalOrganisations[0].types[0].pureId": "personAssociations[0].externalOrganisations[0].types[0].pureId",
+												"personAssociations[0].externalOrganisations[0].types[0].uri": "personAssociations[0].externalOrganisations[0].types[0].uri",
+												"organisationalUnits[0].uuid": "organisationalUnits[0].uuid",
+												"organisationalUnits[0].link.ref": "organisationalUnits[0].link.ref",
+												"organisationalUnits[0].link.href": "organisationalUnits[0].link.href",
+												"organisationalUnits[0].externalId": "organisationalUnits[0].externalId",
+												"organisationalUnits[0].externalIdSource": "organisationalUnits[0].externalIdSource",
+												"organisationalUnits[0].names[0].value": "organisationalUnits[0].names[0].value",
+												"organisationalUnits[0].types[0].value": "organisationalUnits[0].types[0].value",
+												"organisationalUnits[0].types[0].pureId": "organisationalUnits[0].types[0].pureId",
+												"organisationalUnits[0].types[0].uri": "organisationalUnits[0].types[0].uri",
+												"externalOrganisations[0].uuid": "externalOrganisations[0].uuid",
+												"externalOrganisations[0].link.ref": "externalOrganisations[0].link.ref",
+												"externalOrganisations[0].link.href": "externalOrganisations[0].link.href",
+												"externalOrganisations[0].externalId": "externalOrganisations[0].externalId",
+												"externalOrganisations[0].externalIdSource": "externalOrganisations[0].externalIdSource",
+												"externalOrganisations[0].names[0].value": "externalOrganisations[0].names[0].value",
+												"externalOrganisations[0].types[0].value": "externalOrganisations[0].types[0].value",
+												"externalOrganisations[0].types[0].pureId": "externalOrganisations[0].types[0].pureId",
+												"externalOrganisations[0].types[0].uri": "externalOrganisations[0].types[0].uri",
+												"openAccessPermissions[0].value": "openAccessPermissions[0].value",
+												"openAccessPermissions[0].pureId": "openAccessPermissions[0].pureId",
+												"openAccessPermissions[0].uri": "openAccessPermissions[0].uri",
+												"keywordGroups[0].pureId": "keywordGroups[0].pureId",
+												"keywordGroups[0].logicalName": "keywordGroups[0].logicalName",
+												"keywordGroups[0].types[0].value": "keywordGroups[0].types[0].value",
+												"keywordGroups[0].types[0].uri": "keywordGroups[0].types[0].uri",
+												"keywordGroups[0].keywordContainers[0].pureId": "keywordGroups[0].keywordContainers[0].pureId",
+												"keywordGroups[0].keywordContainers[0].structuredKeyword.pureId": "keywordGroups[0].keywordContainers[0].structuredKeyword.pureId",
+												"keywordGroups[0].keywordContainers[0].structuredKeyword.uri": "keywordGroups[0].keywordContainers[0].structuredKeyword.uri",
+												"keywordGroups[0].keywordContainers[0].structuredKeyword.disabled": "keywordGroups[0].keywordContainers[0].structuredKeyword.disabled",
+												"keywordGroups[0].keywordContainers[0].structuredKeyword.terms[0].value": "keywordGroups[0].keywordContainers[0].structuredKeyword.terms[0].value",
+												"keywordGroups[0].keywordContainers[0].structuredKeyword.descriptions[0].value": "keywordGroups[0].keywordContainers[0].structuredKeyword.descriptions[0].value",
+												"visibilities[0].value": "visibilities[0].value",
+												"visibilities[0].key": "visibilities[0].key",
+												"workflows[0].value": "workflows[0].value",
+												"workflows[0].workflowStep": "workflows[0].workflowStep",
+												"$.navigationLinks[0].ref": "$.navigationLinks[0].ref",
+												"$.navigationLinks[0].href": "$.navigationLinks[0].href"
+											},
+											"collectionReference": "$.items"
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "REST_Dataset",
+											"type": "DatasetReference",
+											"parameters": {
+												"RelativeUrl": {
+													"value": "@activity('Translate JSON Variables').output.result.RelativeUrl",
+													"type": "Expression"
+												},
+												"PaginationJsonPath": "$.dummy-no-paging",
+												"ApiKey": {
+													"value": "@activity('Translate JSON Variables').output.result.ApiKey",
+													"type": "Expression"
+												},
+												"Authorization": {
+													"value": "@activity('Translate JSON Variables').output.result.Authorization",
+													"type": "Expression"
+												},
+												"BaseUrl": {
+													"value": "@activity('Translate JSON Variables').output.result.BaseUrl",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "JsonFile_Dataset",
+											"type": "DatasetReference",
+											"parameters": {
+												"FilePath": {
+													"value": "@{activity('Translate JSON Variables').output.result.Scope}/@{activity('Translate JSON Variables').output.result.SourceSystem}/@{activity('Translate JSON Variables').output.result.EntityName}/Current",
+													"type": "Expression"
+												},
+												"FileName": {
+													"value": "@{activity('Translate JSON Variables').output.result.EntityName}-page1.json",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								},
+								{
+									"name": "Get all other pages from REST API",
+									"type": "Copy",
+									"dependsOn": [
+										{
+											"activity": "Get the first page from REST API",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "RestSource",
+											"httpRequestTimeout": "00:01:40",
+											"requestInterval": "00.00:00:00.010"
+										},
+										"sink": {
+											"type": "AzureBlobFSSink"
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"schemaMapping": {
+												"$.pageInformation.offset": "$.pageInformation.offset",
+												"$.pageInformation.size": "$.pageInformation.size",
+												"pureId": "pureId",
+												"externalId": "externalId",
+												"externalIdSource": "externalIdSource",
+												"uuid": "uuid",
+												"title": "title",
+												"peerReview": "peerReview",
+												"numberOfPages": "numberOfPages",
+												"managingOrganisationalUnit.uuid": "managingOrganisationalUnit.uuid",
+												"managingOrganisationalUnit.link.ref": "managingOrganisationalUnit.link.ref",
+												"managingOrganisationalUnit.link.href": "managingOrganisationalUnit.link.href",
+												"managingOrganisationalUnit.externalId": "managingOrganisationalUnit.externalId",
+												"managingOrganisationalUnit.externalIdSource": "managingOrganisationalUnit.externalIdSource",
+												"managingOrganisationalUnit.names[0].value": "managingOrganisationalUnit.names[0].value",
+												"managingOrganisationalUnit.types[0].value": "managingOrganisationalUnit.types[0].value",
+												"managingOrganisationalUnit.types[0].pureId": "managingOrganisationalUnit.types[0].pureId",
+												"managingOrganisationalUnit.types[0].uri": "managingOrganisationalUnit.types[0].uri",
+												"confidential": "confidential",
+												"info.createdBy": "info.createdBy",
+												"info.createdDate": "info.createdDate",
+												"info.modifiedBy": "info.modifiedBy",
+												"info.modifiedDate": "info.modifiedDate",
+												"info.portalUrl": "info.portalUrl",
+												"info.additionalExternalIds[0].value": "info.additionalExternalIds[0].value",
+												"info.additionalExternalIds[0].idSource": "info.additionalExternalIds[0].idSource",
+												"pages": "pages",
+												"volume": "volume",
+												"journalAssociation.pureId": "journalAssociation.pureId",
+												"journalAssociation.title.value": "journalAssociation.title.value",
+												"journalAssociation.issn.value": "journalAssociation.issn.value",
+												"journalAssociation.journal.uuid": "journalAssociation.journal.uuid",
+												"journalAssociation.journal.link.ref": "journalAssociation.journal.link.ref",
+												"journalAssociation.journal.link.href": "journalAssociation.journal.link.href",
+												"journalAssociation.journal.externalId": "journalAssociation.journal.externalId",
+												"journalAssociation.journal.externalIdSource": "journalAssociation.journal.externalIdSource",
+												"journalAssociation.journal.names[0].value": "journalAssociation.journal.names[0].value",
+												"journalAssociation.journal.types[0].value": "journalAssociation.journal.types[0].value",
+												"journalAssociation.journal.types[0].pureId": "journalAssociation.journal.types[0].pureId",
+												"journalAssociation.journal.types[0].uri": "journalAssociation.journal.types[0].uri",
+												"journalNumber": "journalNumber",
+												"totalNumberOfAuthors": "totalNumberOfAuthors",
+												"types[0].value": "types[0].value",
+												"types[0].pureId": "types[0].pureId",
+												"types[0].uri": "types[0].uri",
+												"categories[0].value": "categories[0].value",
+												"categories[0].pureId": "categories[0].pureId",
+												"categories[0].uri": "categories[0].uri",
+												"publicationStatuses[0].pureId": "publicationStatuses[0].pureId",
+												"publicationStatuses[0].externalId": "publicationStatuses[0].externalId",
+												"publicationStatuses[0].externalIdSource": "publicationStatuses[0].externalIdSource",
+												"publicationStatuses[0].current": "publicationStatuses[0].current",
+												"publicationStatuses[0].publicationDate.year": "publicationStatuses[0].publicationDate.year",
+												"publicationStatuses[0].publicationStatuses[0].value": "publicationStatuses[0].publicationStatuses[0].value",
+												"publicationStatuses[0].publicationStatuses[0].pureId": "publicationStatuses[0].publicationStatuses[0].pureId",
+												"publicationStatuses[0].publicationStatuses[0].uri": "publicationStatuses[0].publicationStatuses[0].uri",
+												"languages[0].value": "languages[0].value",
+												"languages[0].pureId": "languages[0].pureId",
+												"languages[0].uri": "languages[0].uri",
+												"personAssociations[0].pureId": "personAssociations[0].pureId",
+												"personAssociations[0].externalPerson.uuid": "personAssociations[0].externalPerson.uuid",
+												"personAssociations[0].externalPerson.link.ref": "personAssociations[0].externalPerson.link.ref",
+												"personAssociations[0].externalPerson.link.href": "personAssociations[0].externalPerson.link.href",
+												"personAssociations[0].externalPerson.externalId": "personAssociations[0].externalPerson.externalId",
+												"personAssociations[0].externalPerson.externalIdSource": "personAssociations[0].externalPerson.externalIdSource",
+												"personAssociations[0].externalPerson.names[0].value": "personAssociations[0].externalPerson.names[0].value",
+												"personAssociations[0].externalPerson.types[0].value": "personAssociations[0].externalPerson.types[0].value",
+												"personAssociations[0].externalPerson.types[0].pureId": "personAssociations[0].externalPerson.types[0].pureId",
+												"personAssociations[0].externalPerson.types[0].uri": "personAssociations[0].externalPerson.types[0].uri",
+												"personAssociations[0].name.firstName": "personAssociations[0].name.firstName",
+												"personAssociations[0].name.lastName": "personAssociations[0].name.lastName",
+												"personAssociations[0].personRoles[0].value": "personAssociations[0].personRoles[0].value",
+												"personAssociations[0].personRoles[0].pureId": "personAssociations[0].personRoles[0].pureId",
+												"personAssociations[0].personRoles[0].uri": "personAssociations[0].personRoles[0].uri",
+												"personAssociations[0].externalOrganisations[0].uuid": "personAssociations[0].externalOrganisations[0].uuid",
+												"personAssociations[0].externalOrganisations[0].link.ref": "personAssociations[0].externalOrganisations[0].link.ref",
+												"personAssociations[0].externalOrganisations[0].link.href": "personAssociations[0].externalOrganisations[0].link.href",
+												"personAssociations[0].externalOrganisations[0].externalId": "personAssociations[0].externalOrganisations[0].externalId",
+												"personAssociations[0].externalOrganisations[0].externalIdSource": "personAssociations[0].externalOrganisations[0].externalIdSource",
+												"personAssociations[0].externalOrganisations[0].names[0].value": "personAssociations[0].externalOrganisations[0].names[0].value",
+												"personAssociations[0].externalOrganisations[0].types[0].value": "personAssociations[0].externalOrganisations[0].types[0].value",
+												"personAssociations[0].externalOrganisations[0].types[0].pureId": "personAssociations[0].externalOrganisations[0].types[0].pureId",
+												"personAssociations[0].externalOrganisations[0].types[0].uri": "personAssociations[0].externalOrganisations[0].types[0].uri",
+												"organisationalUnits[0].uuid": "organisationalUnits[0].uuid",
+												"organisationalUnits[0].link.ref": "organisationalUnits[0].link.ref",
+												"organisationalUnits[0].link.href": "organisationalUnits[0].link.href",
+												"organisationalUnits[0].externalId": "organisationalUnits[0].externalId",
+												"organisationalUnits[0].externalIdSource": "organisationalUnits[0].externalIdSource",
+												"organisationalUnits[0].names[0].value": "organisationalUnits[0].names[0].value",
+												"organisationalUnits[0].types[0].value": "organisationalUnits[0].types[0].value",
+												"organisationalUnits[0].types[0].pureId": "organisationalUnits[0].types[0].pureId",
+												"organisationalUnits[0].types[0].uri": "organisationalUnits[0].types[0].uri",
+												"externalOrganisations[0].uuid": "externalOrganisations[0].uuid",
+												"externalOrganisations[0].link.ref": "externalOrganisations[0].link.ref",
+												"externalOrganisations[0].link.href": "externalOrganisations[0].link.href",
+												"externalOrganisations[0].externalId": "externalOrganisations[0].externalId",
+												"externalOrganisations[0].externalIdSource": "externalOrganisations[0].externalIdSource",
+												"externalOrganisations[0].names[0].value": "externalOrganisations[0].names[0].value",
+												"externalOrganisations[0].types[0].value": "externalOrganisations[0].types[0].value",
+												"externalOrganisations[0].types[0].pureId": "externalOrganisations[0].types[0].pureId",
+												"externalOrganisations[0].types[0].uri": "externalOrganisations[0].types[0].uri",
+												"openAccessPermissions[0].value": "openAccessPermissions[0].value",
+												"openAccessPermissions[0].pureId": "openAccessPermissions[0].pureId",
+												"openAccessPermissions[0].uri": "openAccessPermissions[0].uri",
+												"keywordGroups[0].pureId": "keywordGroups[0].pureId",
+												"keywordGroups[0].logicalName": "keywordGroups[0].logicalName",
+												"keywordGroups[0].types[0].value": "keywordGroups[0].types[0].value",
+												"keywordGroups[0].types[0].uri": "keywordGroups[0].types[0].uri",
+												"keywordGroups[0].keywordContainers[0].pureId": "keywordGroups[0].keywordContainers[0].pureId",
+												"keywordGroups[0].keywordContainers[0].structuredKeyword.pureId": "keywordGroups[0].keywordContainers[0].structuredKeyword.pureId",
+												"keywordGroups[0].keywordContainers[0].structuredKeyword.uri": "keywordGroups[0].keywordContainers[0].structuredKeyword.uri",
+												"keywordGroups[0].keywordContainers[0].structuredKeyword.disabled": "keywordGroups[0].keywordContainers[0].structuredKeyword.disabled",
+												"keywordGroups[0].keywordContainers[0].structuredKeyword.terms[0].value": "keywordGroups[0].keywordContainers[0].structuredKeyword.terms[0].value",
+												"keywordGroups[0].keywordContainers[0].structuredKeyword.descriptions[0].value": "keywordGroups[0].keywordContainers[0].structuredKeyword.descriptions[0].value",
+												"visibilities[0].value": "visibilities[0].value",
+												"visibilities[0].key": "visibilities[0].key",
+												"workflows[0].value": "workflows[0].value",
+												"workflows[0].workflowStep": "workflows[0].workflowStep",
+												"$.navigationLinks[0].ref": "$.navigationLinks[0].ref",
+												"$.navigationLinks[0].href": "$.navigationLinks[0].href"
+											},
+											"collectionReference": "$.items"
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "REST_Dataset",
+											"type": "DatasetReference",
+											"parameters": {
+												"RelativeUrl": {
+													"value": "@activity('Translate JSON Variables').output.result.SecondPageRelativeUrl",
+													"type": "Expression"
+												},
+												"PaginationJsonPath": {
+													"value": "@activity('Translate JSON Variables').output.result.PaginationJsonPath",
+													"type": "Expression"
+												},
+												"ApiKey": {
+													"value": "@activity('Translate JSON Variables').output.result.ApiKey",
+													"type": "Expression"
+												},
+												"Authorization": {
+													"value": "@activity('Translate JSON Variables').output.result.Authorization",
+													"type": "Expression"
+												},
+												"BaseUrl": {
+													"value": "@activity('Translate JSON Variables').output.result.BaseUrl",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "JsonFile_Dataset",
+											"type": "DatasetReference",
+											"parameters": {
+												"FilePath": {
+													"value": "@{activity('Translate JSON Variables').output.result.Scope}/@{activity('Translate JSON Variables').output.result.SourceSystem}/@{activity('Translate JSON Variables').output.result.EntityName}/Current",
+													"type": "Expression"
+												},
+												"FileName": {
+													"value": "@{activity('Translate JSON Variables').output.result.EntityName}-remainder.json",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								},
+								{
+									"name": "Save to History",
+									"description": "Save to History if required.",
+									"type": "IfCondition",
+									"dependsOn": [
+										{
+											"activity": "Get all other pages from REST API",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"expression": {
+											"value": "@equals(activity('Translate JSON Variables').output.result.SecondPageRelativeUrl, 'True')",
+											"type": "Expression"
+										},
+										"ifTrueActivities": [
+											{
+												"name": "Add DataDate and Save to History",
+												"type": "DatabricksNotebook",
+												"dependsOn": [],
+												"policy": {
+													"timeout": "7.00:00:00",
+													"retry": 0,
+													"retryIntervalInSeconds": 30,
+													"secureOutput": false,
+													"secureInput": false
+												},
+												"userProperties": [],
+												"typeProperties": {
+													"notebookPath": "/Analytics/_Add DataDate and Save to History",
+													"baseParameters": {
+														"Scope": {
+															"value": "@activity('Translate JSON Variables').output.result.Scope",
+															"type": "Expression"
+														},
+														"SourceSystem": {
+															"value": "@activity('Translate JSON Variables').output.result.SourceSystem",
+															"type": "Expression"
+														},
+														"Entity": {
+															"value": "@activity('Translate JSON Variables').output.result.EntityName",
+															"type": "Expression"
+														},
+														"DataDate": {
+															"value": "@activity('Translate JSON Variables').output.result.DataDate",
+															"type": "Expression"
+														},
+														"FileFormat": {
+															"value": "@activity('Translate JSON Variables').output.result.FileFormat",
+															"type": "Expression"
+														}
+													}
+												},
+												"linkedServiceName": {
+													"referenceName": "AzureDatabricks",
+													"type": "LinkedServiceReference"
+												}
+											}
+										]
+									}
+								},
+								{
+									"name": "Indicate Failure 3",
+									"type": "SqlServerStoredProcedure",
+									"dependsOn": [
+										{
+											"activity": "Save to History",
+											"dependencyConditions": [
+												"Failed"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"storedProcedureName": "[[Process].[up_UpdateEntityDiagnostics]",
+										"storedProcedureParameters": {
+											"EntityKey": {
+												"value": {
+													"value": "@item().EntityKey",
+													"type": "Expression"
+												},
+												"type": "Int32"
+											},
+											"ExecutionMessage": {
+												"value": {
+													"value": "Error in Data Factory '@{pipeline().DataFactory}' | Pipeline '@{pipeline().Pipeline}' | Entity '@{activity('Translate JSON Variables').output.result.SourceSystem}.@{activity('Translate JSON Variables').output.result.EntityName}' | @{activity('Add DataDate and Save to History').output.errors[0].Message}",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"Result": {
+												"value": "Failure",
+												"type": "String"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "ControlDB",
+										"type": "LinkedServiceReference"
+									}
+								},
+								{
+									"name": "Indicate Failure 1",
+									"type": "SqlServerStoredProcedure",
+									"dependsOn": [
+										{
+											"activity": "Get the first page from REST API",
+											"dependencyConditions": [
+												"Failed"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"storedProcedureName": "[[Process].[up_UpdateEntityDiagnostics]",
+										"storedProcedureParameters": {
+											"EntityKey": {
+												"value": {
+													"value": "@item().EntityKey",
+													"type": "Expression"
+												},
+												"type": "Int32"
+											},
+											"ExecutionMessage": {
+												"value": {
+													"value": "Error in Data Factory '@{pipeline().DataFactory}' | Pipeline '@{pipeline().Pipeline}' | Entity '@{activity('Translate JSON Variables').output.result.SourceSystem}.@{activity('Translate JSON Variables').output.result.EntityName}' | @{activity('Get the first page from REST API').output.errors[0].Message}",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"Result": {
+												"value": "Failure",
+												"type": "String"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "ControlDB",
+										"type": "LinkedServiceReference"
+									}
+								}
+							]
+						}
 					}
 				],
+				"parameters": {
+					"EntityGroupKeyList": {
+						"type": "String",
+						"defaultValue": "3"
+					}
+				},
+				"variables": {
+					"ProcessTypeKey": {
+						"type": "String",
+						"defaultValue": "7"
+					}
+				},
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/DelimitedTextFile_Dataset')]",
-				"[concat(variables('factoryId'), '/datasets/ParquetBlobStorage_Dataset')]"
+				"[concat(variables('factoryId'), '/datasets/ControlDB_Dataset')]",
+				"[concat(variables('factoryId'), '/linkedServices/ControlDB')]",
+				"[concat(variables('factoryId'), '/linkedServices/AzureFunctions')]",
+				"[concat(variables('factoryId'), '/datasets/REST_Dataset')]",
+				"[concat(variables('factoryId'), '/datasets/JsonFile_Dataset')]",
+				"[concat(variables('factoryId'), '/linkedServices/AzureDatabricks')]"
 			]
 		}
 	]
