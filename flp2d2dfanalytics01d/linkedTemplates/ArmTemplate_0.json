@@ -1002,6 +1002,9 @@
 						"defaultValue": "1"
 					}
 				},
+				"folder": {
+					"name": "Inactive"
+				},
 				"annotations": []
 			},
 			"dependsOn": [
@@ -1013,11 +1016,11 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/_Process Type 2 - Process History and Changeset')]",
+			"name": "[concat(parameters('factoryName'), '/_Process Type 2 - Determine Changeset in Data Lake')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"description": "Save the Current data into History folder and determine the Changeset (if applicable)\n\nUse a For Each loop operating in parallel mode.\n\nFor debugging purposes, you can simulate \n JSON array with:\n \n[{\"ProductNumber\" : \"HL-U509\"},{\"ProductNumber\" : \"FR-R92R-62\"}]",
+				"description": "Determine the Changeset by comparing Current data to Previous.\n\nUse a For Each loop operating in parallel mode.",
 				"activities": [
 					{
 						"name": "Process Entity",
@@ -1039,12 +1042,12 @@
 							},
 							"activities": [
 								{
-									"name": "Process History and Changeset",
-									"description": "This Notebook will process each record and record History and, if required, determine the Changeset of this newly arriving data",
+									"name": "Determine Changeset",
+									"description": "This Notebook will process each record and determine the Changeset of this newly arriving data",
 									"type": "DatabricksNotebook",
 									"dependsOn": [
 										{
-											"activity": "Lookup the Data Date",
+											"activity": "Translate JSON Variables",
 											"dependencyConditions": [
 												"Succeeded"
 											]
@@ -1059,7 +1062,7 @@
 									},
 									"userProperties": [],
 									"typeProperties": {
-										"notebookPath": "/Analytics/_Save to History and Determine Changeset",
+										"notebookPath": "/Analytics/_Determine Changeset",
 										"baseParameters": {
 											"SourceSystem": {
 												"value": "@activity('Translate JSON Variables').output.result.SourceSystem",
@@ -1075,10 +1078,6 @@
 											},
 											"Scope": {
 												"value": "@activity('Translate JSON Variables').output.result.Scope",
-												"type": "Expression"
-											},
-											"DataDate": {
-												"value": "@string(activity('Lookup the Data Date').output.firstRow.DataDate)",
 												"type": "Expression"
 											},
 											"DatasetType": {
@@ -1161,7 +1160,7 @@
 									"type": "SqlServerStoredProcedure",
 									"dependsOn": [
 										{
-											"activity": "Process History and Changeset",
+											"activity": "Determine Changeset",
 											"dependencyConditions": [
 												"Succeeded"
 											]
@@ -1191,7 +1190,7 @@
 											},
 											"ExecutionMessage": {
 												"value": {
-													"value": "Success in Data Factory '@{pipeline().DataFactory}' | Pipeline '@{pipeline().Pipeline}' for '@{activity('Translate JSON Variables').output.result.SourceSystem}.@{activity('Translate JSON Variables').output.result.EntityName}' - Databricks Runsheet URL: @{activity('Process History and Changeset').output.runPageUrl} | Runtime (ms):  @{activity('Process History and Changeset').output.executionDuration}",
+													"value": "Success in Data Factory '@{pipeline().DataFactory}' | Pipeline '@{pipeline().Pipeline}' for '@{activity('Translate JSON Variables').output.result.SourceSystem}.@{activity('Translate JSON Variables').output.result.EntityName}' - Databricks Runsheet URL: @{activity('Determine Changeset').output.runPageUrl} | Runtime (ms):  @{activity('Determine Changeset').output.executionDuration}",
 													"type": "Expression"
 												},
 												"type": "String"
@@ -1208,7 +1207,7 @@
 									"type": "SqlServerStoredProcedure",
 									"dependsOn": [
 										{
-											"activity": "Process History and Changeset",
+											"activity": "Determine Changeset",
 											"dependencyConditions": [
 												"Failed"
 											]
@@ -1234,7 +1233,7 @@
 											},
 											"ExecutionMessage": {
 												"value": {
-													"value": "Error in Data Factory '@{pipeline().DataFactory}' | Pipeline '@{pipeline().Pipeline}' for '@{activity('Translate JSON Variables').output.result.SourceSystem}.@{activity('Translate JSON Variables').output.result.EntityName}' - Databricks Runsheet URL: @{activity('Process History and Changeset').output.runPageUrl} | Runtime (ms):  @{activity('Process History and Changeset').output.executionDuration}",
+													"value": "Error in Data Factory '@{pipeline().DataFactory}' | Pipeline '@{pipeline().Pipeline}' for '@{activity('Translate JSON Variables').output.result.SourceSystem}.@{activity('Translate JSON Variables').output.result.EntityName}' - Databricks Runsheet URL: @{activity('Determine Changeset').output.runPageUrl} | Runtime (ms):  @{activity('Determine Changeset').output.executionDuration}",
 													"type": "Expression"
 												},
 												"type": "String"
@@ -1248,41 +1247,6 @@
 									"linkedServiceName": {
 										"referenceName": "ControlDB",
 										"type": "LinkedServiceReference"
-									}
-								},
-								{
-									"name": "Lookup the Data Date",
-									"description": "Read the Control table that specifies which date this data pertains to.",
-									"type": "Lookup",
-									"dependsOn": [
-										{
-											"activity": "Translate JSON Variables",
-											"dependencyConditions": [
-												"Succeeded"
-											]
-										}
-									],
-									"policy": {
-										"timeout": "7.00:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"source": {
-											"type": "AzureSqlSource",
-											"sqlReaderQuery": {
-												"value": "@activity('Translate JSON Variables').output.result.DataDateQuery",
-												"type": "Expression"
-											}
-										},
-										"dataset": {
-											"referenceName": "ControlDB_Dataset",
-											"type": "DatasetReference",
-											"parameters": {}
-										}
 									}
 								}
 							]
@@ -1380,7 +1344,7 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/_Process Type 3 - Update Delta Lake')]",
+			"name": "[concat(parameters('factoryName'), '/_Process Type 3 - Apply Changeset to Delta Lake')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
