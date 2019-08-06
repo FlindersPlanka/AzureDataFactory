@@ -1,7 +1,7 @@
 {
-	"name": "_Process Type 2 - Process History and Changeset",
+	"name": "_Process Type 2 - Determine Changeset",
 	"properties": {
-		"description": "Save the Current data into History folder and determine the Changeset (if applicable)\n\nUse a For Each loop operating in parallel mode.\n\nFor debugging purposes, you can simulate \n JSON array with:\n \n[{\"ProductNumber\" : \"HL-U509\"},{\"ProductNumber\" : \"FR-R92R-62\"}]",
+		"description": "Determine the Changeset by comparing Current data to Previous.\n\nUse a For Each loop operating in parallel mode.",
 		"activities": [
 			{
 				"name": "Process Entity",
