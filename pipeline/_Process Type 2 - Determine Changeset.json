@@ -28,7 +28,7 @@
 							"type": "DatabricksNotebook",
 							"dependsOn": [
 								{
-									"activity": "Lookup the Data Date",
+									"activity": "Translate JSON Variables",
 									"dependencyConditions": [
 										"Succeeded"
 									]
@@ -59,10 +59,6 @@
 									},
 									"Scope": {
 										"value": "@activity('Translate JSON Variables').output.result.Scope",
-										"type": "Expression"
-									},
-									"DataDate": {
-										"value": "@string(activity('Lookup the Data Date').output.firstRow.DataDate)",
 										"type": "Expression"
 									},
 									"DatasetType": {
@@ -231,40 +227,6 @@
 							"linkedServiceName": {
 								"referenceName": "ControlDB",
 								"type": "LinkedServiceReference"
-							}
-						},
-						{
-							"name": "Lookup the Data Date",
-							"description": "Read the Control table that specifies which date this data pertains to.",
-							"type": "Lookup",
-							"dependsOn": [
-								{
-									"activity": "Translate JSON Variables",
-									"dependencyConditions": [
-										"Succeeded"
-									]
-								}
-							],
-							"policy": {
-								"timeout": "7.00:00:00",
-								"retry": 0,
-								"retryIntervalInSeconds": 30,
-								"secureOutput": false,
-								"secureInput": false
-							},
-							"userProperties": [],
-							"typeProperties": {
-								"source": {
-									"type": "AzureSqlSource",
-									"sqlReaderQuery": {
-										"value": "@activity('Translate JSON Variables').output.result.DataDateQuery",
-										"type": "Expression"
-									}
-								},
-								"dataset": {
-									"referenceName": "ControlDB_Dataset",
-									"type": "DatasetReference"
-								}
 							}
 						}
 					]
