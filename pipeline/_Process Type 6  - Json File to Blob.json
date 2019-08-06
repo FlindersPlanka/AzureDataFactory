@@ -329,6 +329,9 @@
 				"defaultValue": "6"
 			}
 		},
+		"folder": {
+			"name": "Inactive"
+		},
 		"annotations": []
 	},
 	"type": "Microsoft.DataFactory/factories/pipelines"

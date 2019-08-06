@@ -6,6 +6,7 @@
 			{
 				"name": "Get Entities to Process",
 				"type": "Lookup",
+				"dependsOn": [],
 				"policy": {
 					"timeout": "7.00:00:00",
 					"retry": 0,
@@ -13,6 +14,7 @@
 					"secureOutput": false,
 					"secureInput": false
 				},
+				"userProperties": [],
 				"typeProperties": {
 					"source": {
 						"type": "AzureSqlSource",
@@ -57,6 +59,7 @@
 						]
 					}
 				],
+				"userProperties": [],
 				"typeProperties": {
 					"items": {
 						"value": "@activity('Get Entities to Process').output.value",
@@ -80,6 +83,7 @@
 						]
 					}
 				],
+				"userProperties": [],
 				"typeProperties": {
 					"items": {
 						"value": "@activity('Filter out Invalid Entities').output.value",
@@ -90,6 +94,7 @@
 							"name": "Set Process Start Time",
 							"description": "Set the LastRunStartTime for this Entity",
 							"type": "SqlServerStoredProcedure",
+							"dependsOn": [],
 							"policy": {
 								"timeout": "7.00:00:00",
 								"retry": 0,
@@ -97,6 +102,7 @@
 								"secureOutput": false,
 								"secureInput": false
 							},
+							"userProperties": [],
 							"typeProperties": {
 								"storedProcedureName": "[Process].[up_UpdateEntityProcessStartTime]",
 								"storedProcedureParameters": {
@@ -126,6 +132,7 @@
 									]
 								}
 							],
+							"userProperties": [],
 							"typeProperties": {
 								"expression": {
 									"value": "@not(equals(activity('Translate JSON Variables').output.result.ExtractControlQuery, '')) ",
@@ -135,6 +142,7 @@
 									{
 										"name": "Lookup the Next Extract Control",
 										"type": "Lookup",
+										"dependsOn": [],
 										"policy": {
 											"timeout": "7.00:00:00",
 											"retry": 0,
@@ -142,6 +150,7 @@
 											"secureOutput": false,
 											"secureInput": false
 										},
+										"userProperties": [],
 										"typeProperties": {
 											"source": {
 												"type": "AzureSqlSource",
@@ -187,6 +196,7 @@
 								"secureOutput": false,
 								"secureInput": false
 							},
+							"userProperties": [],
 							"typeProperties": {
 								"source": {
 									"type": "AzureSqlSource",
@@ -255,6 +265,7 @@
 								"secureOutput": false,
 								"secureInput": false
 							},
+							"userProperties": [],
 							"typeProperties": {
 								"storedProcedureName": "[Process].[up_UpdateEntityDiagnostics]",
 								"storedProcedureParameters": {
@@ -301,6 +312,7 @@
 								"secureOutput": false,
 								"secureInput": false
 							},
+							"userProperties": [],
 							"typeProperties": {
 								"storedProcedureName": "[Process].[up_UpdateEntityDiagnostics]",
 								"storedProcedureParameters": {
@@ -348,6 +360,7 @@
 								"secureOutput": false,
 								"secureInput": false
 							},
+							"userProperties": [],
 							"typeProperties": {
 								"functionName": "TranslateVariables",
 								"method": "POST",
@@ -372,6 +385,7 @@
 									]
 								}
 							],
+							"userProperties": [],
 							"typeProperties": {
 								"expression": {
 									"value": "@not(equals(activity('Translate JSON Variables').output.result.ExtractControlQuery, '')) ",
@@ -382,6 +396,7 @@
 										"name": "Set Next Extract Control Value",
 										"description": "Update the ExtractControl for this Process Entity",
 										"type": "SqlServerStoredProcedure",
+										"dependsOn": [],
 										"policy": {
 											"timeout": "7.00:00:00",
 											"retry": 0,
@@ -389,6 +404,7 @@
 											"secureOutput": false,
 											"secureInput": false
 										},
+										"userProperties": [],
 										"typeProperties": {
 											"storedProcedureName": "[Process].[up_SetOverrideVariable]",
 											"storedProcedureParameters": {
@@ -435,7 +451,11 @@
 				"type": "String",
 				"defaultValue": "1"
 			}
-		}
+		},
+		"folder": {
+			"name": "Inactive"
+		},
+		"annotations": []
 	},
 	"type": "Microsoft.DataFactory/factories/pipelines"
 }

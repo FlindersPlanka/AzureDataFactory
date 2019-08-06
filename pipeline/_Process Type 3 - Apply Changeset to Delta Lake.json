@@ -1,5 +1,5 @@
 {
-	"name": "_Process Type 3 - Update Delta Lake",
+	"name": "_Process Type 3 - Apply Changeset to Delta Lake",
 	"properties": {
 		"description": "Process the Changeset into the Delta Table.\n",
 		"activities": [

@@ -1,5 +1,5 @@
 {
-	"name": "_Process Type 4 - Update Data Warehouse",
+	"name": "_Process Type 4 - Apply Changeset to Data Warehouse",
 	"properties": {
 		"description": "Process the Changeset into the Data Warehouse.\n",
 		"activities": [
@@ -15,6 +15,7 @@
 						]
 					}
 				],
+				"userProperties": [],
 				"typeProperties": {
 					"items": {
 						"value": "@activity('Filter out Invalid Entities').output.value",
@@ -25,6 +26,7 @@
 							"name": "Set Process Start Time",
 							"description": "Set the LastRunStartTime for this Entity",
 							"type": "SqlServerStoredProcedure",
+							"dependsOn": [],
 							"policy": {
 								"timeout": "7.00:00:00",
 								"retry": 0,
@@ -32,6 +34,7 @@
 								"secureOutput": false,
 								"secureInput": false
 							},
+							"userProperties": [],
 							"typeProperties": {
 								"storedProcedureName": "[Process].[up_UpdateEntityProcessStartTime]",
 								"storedProcedureParameters": {
@@ -68,6 +71,7 @@
 								"secureOutput": false,
 								"secureInput": false
 							},
+							"userProperties": [],
 							"typeProperties": {
 								"functionName": "TranslateVariables",
 								"method": "POST",
@@ -99,6 +103,7 @@
 								"secureOutput": false,
 								"secureInput": false
 							},
+							"userProperties": [],
 							"typeProperties": {
 								"storedProcedureName": "[Process].[up_UpdateEntityDiagnostics]",
 								"storedProcedureParameters": {
@@ -145,6 +150,7 @@
 								"secureOutput": false,
 								"secureInput": false
 							},
+							"userProperties": [],
 							"typeProperties": {
 								"storedProcedureName": "[Process].[up_UpdateEntityDiagnostics]",
 								"storedProcedureParameters": {
@@ -192,6 +198,7 @@
 								"secureOutput": false,
 								"secureInput": false
 							},
+							"userProperties": [],
 							"typeProperties": {
 								"source": {
 									"type": "AzureSqlSource",
@@ -224,6 +231,7 @@
 								"secureOutput": false,
 								"secureInput": false
 							},
+							"userProperties": [],
 							"typeProperties": {
 								"source": {
 									"type": "ParquetSource",
@@ -292,6 +300,7 @@
 								"secureOutput": false,
 								"secureInput": false
 							},
+							"userProperties": [],
 							"typeProperties": {
 								"storedProcedureName": {
 									"value": "[@{activity('Translate JSON Variables').output.result.SourceSystem}].[up_Merge_@{activity('Translate JSON Variables').output.result.EntityName}]",
@@ -330,6 +339,7 @@
 								"secureOutput": false,
 								"secureInput": false
 							},
+							"userProperties": [],
 							"typeProperties": {
 								"storedProcedureName": "[Process].[up_UpdateEntityDiagnostics]",
 								"storedProcedureParameters": {
@@ -364,6 +374,7 @@
 			{
 				"name": "Get Entities to Process",
 				"type": "Lookup",
+				"dependsOn": [],
 				"policy": {
 					"timeout": "7.00:00:00",
 					"retry": 0,
@@ -371,6 +382,7 @@
 					"secureOutput": false,
 					"secureInput": false
 				},
+				"userProperties": [],
 				"typeProperties": {
 					"source": {
 						"type": "AzureSqlSource",
@@ -415,6 +427,7 @@
 						]
 					}
 				],
+				"userProperties": [],
 				"typeProperties": {
 					"items": {
 						"value": "@activity('Get Entities to Process').output.value",
@@ -438,7 +451,8 @@
 				"type": "String",
 				"defaultValue": "4"
 			}
-		}
+		},
+		"annotations": []
 	},
 	"type": "Microsoft.DataFactory/factories/pipelines"
 }

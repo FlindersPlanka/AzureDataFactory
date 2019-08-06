@@ -663,6 +663,9 @@
 				"defaultValue": "7"
 			}
 		},
+		"folder": {
+			"name": "Archive"
+		},
 		"annotations": []
 	},
 	"type": "Microsoft.DataFactory/factories/pipelines"

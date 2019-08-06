@@ -1,5 +1,5 @@
 {
-	"name": "_Process Type 7 - REST API to Data Lake",
+	"name": "_Process Type 7 - ETL - REST API to Data Lake",
 	"properties": {
 		"description": "Extract data from a REST API and save in JSON format in Azure Data Lake.",
 		"activities": [

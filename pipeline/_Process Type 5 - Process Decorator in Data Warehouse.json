@@ -1,5 +1,5 @@
 {
-	"name": "_Process Type 5 - Process Decorator",
+	"name": "_Process Type 5 - Process Decorator in Data Warehouse",
 	"properties": {
 		"description": "Process Decorators.\n",
 		"activities": [
@@ -15,6 +15,7 @@
 						]
 					}
 				],
+				"userProperties": [],
 				"typeProperties": {
 					"items": {
 						"value": "@activity('Filter out Invalid Entities').output.value",
@@ -25,6 +26,7 @@
 							"name": "Set Process Start Time",
 							"description": "Set the LastRunStartTime for this Entity",
 							"type": "SqlServerStoredProcedure",
+							"dependsOn": [],
 							"policy": {
 								"timeout": "7.00:00:00",
 								"retry": 0,
@@ -32,6 +34,7 @@
 								"secureOutput": false,
 								"secureInput": false
 							},
+							"userProperties": [],
 							"typeProperties": {
 								"storedProcedureName": "[Process].[up_UpdateEntityProcessStartTime]",
 								"storedProcedureParameters": {
@@ -68,6 +71,7 @@
 								"secureOutput": false,
 								"secureInput": false
 							},
+							"userProperties": [],
 							"typeProperties": {
 								"functionName": "TranslateVariables",
 								"method": "POST",
@@ -99,6 +103,7 @@
 								"secureOutput": false,
 								"secureInput": false
 							},
+							"userProperties": [],
 							"typeProperties": {
 								"storedProcedureName": "[Process].[up_UpdateEntityDiagnostics]",
 								"storedProcedureParameters": {
@@ -145,6 +150,7 @@
 								"secureOutput": false,
 								"secureInput": false
 							},
+							"userProperties": [],
 							"typeProperties": {
 								"storedProcedureName": {
 									"value": "@{activity('Translate JSON Variables').output.result.DecoratorSproc}",
@@ -183,6 +189,7 @@
 								"secureOutput": false,
 								"secureInput": false
 							},
+							"userProperties": [],
 							"typeProperties": {
 								"storedProcedureName": "[Process].[up_UpdateEntityDiagnostics]",
 								"storedProcedureParameters": {
@@ -223,6 +230,7 @@
 									]
 								}
 							],
+							"userProperties": [],
 							"typeProperties": {
 								"expression": {
 									"value": "@not(equals(activity('Translate JSON Variables').output.result.ExtractControlQuery, '')) ",
@@ -232,6 +240,7 @@
 									{
 										"name": "Lookup the Next Extract Control",
 										"type": "Lookup",
+										"dependsOn": [],
 										"policy": {
 											"timeout": "7.00:00:00",
 											"retry": 0,
@@ -239,6 +248,7 @@
 											"secureOutput": false,
 											"secureInput": false
 										},
+										"userProperties": [],
 										"typeProperties": {
 											"source": {
 												"type": "AzureSqlSource",
@@ -273,6 +283,7 @@
 									]
 								}
 							],
+							"userProperties": [],
 							"typeProperties": {
 								"expression": {
 									"value": "@not(equals(activity('Translate JSON Variables').output.result.ExtractControlQuery, '')) ",
@@ -283,6 +294,7 @@
 										"name": "Set Next Extract Control Value",
 										"description": "Update the ExtractControl for this Process Entity",
 										"type": "SqlServerStoredProcedure",
+										"dependsOn": [],
 										"policy": {
 											"timeout": "7.00:00:00",
 											"retry": 0,
@@ -290,6 +302,7 @@
 											"secureOutput": false,
 											"secureInput": false
 										},
+										"userProperties": [],
 										"typeProperties": {
 											"storedProcedureName": "[Process].[up_SetOverrideVariable]",
 											"storedProcedureParameters": {
@@ -327,6 +340,7 @@
 			{
 				"name": "Get Entities to Process",
 				"type": "Lookup",
+				"dependsOn": [],
 				"policy": {
 					"timeout": "7.00:00:00",
 					"retry": 0,
@@ -334,6 +348,7 @@
 					"secureOutput": false,
 					"secureInput": false
 				},
+				"userProperties": [],
 				"typeProperties": {
 					"source": {
 						"type": "AzureSqlSource",
@@ -378,6 +393,7 @@
 						]
 					}
 				],
+				"userProperties": [],
 				"typeProperties": {
 					"items": {
 						"value": "@activity('Get Entities to Process').output.value",
@@ -401,7 +417,8 @@
 				"type": "String",
 				"defaultValue": "5"
 			}
-		}
+		},
+		"annotations": []
 	},
 	"type": "Microsoft.DataFactory/factories/pipelines"
 }

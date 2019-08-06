@@ -1,5 +1,5 @@
 {
-	"name": "_Process Type 2 - Determine Changeset",
+	"name": "_Process Type 2 - Determine Changeset in Data Lake",
 	"properties": {
 		"description": "Determine the Changeset by comparing Current data to Previous.\n\nUse a For Each loop operating in parallel mode.",
 		"activities": [
