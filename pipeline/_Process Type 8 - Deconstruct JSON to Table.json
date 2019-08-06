@@ -68,6 +68,10 @@
 									"DataDate": {
 										"value": "@string(activity('Lookup the Data Date').output.firstRow.DataDate)",
 										"type": "Expression"
+									},
+									"SaveToHistory": {
+										"value": "@activity('Translate JSON Variables').output.result.SaveToHistory",
+										"type": "Expression"
 									}
 								}
 							},
