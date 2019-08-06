@@ -1,5 +1,5 @@
 {
-	"name": "_Process Type 8 - Deconstruct JSON to Table",
+	"name": "_Process Type 8 - Deconstruct JSON into Tabular Form in Data Lake",
 	"properties": {
 		"description": "Save the Current data into History folder and deconstruct the JSON file into a Table.",
 		"activities": [
