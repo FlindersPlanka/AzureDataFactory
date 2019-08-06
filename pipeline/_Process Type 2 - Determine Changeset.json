@@ -23,8 +23,8 @@
 					},
 					"activities": [
 						{
-							"name": "Process History and Changeset",
-							"description": "This Notebook will process each record and record History and, if required, determine the Changeset of this newly arriving data",
+							"name": "Determine Changeset",
+							"description": "This Notebook will process each record and determine the Changeset of this newly arriving data",
 							"type": "DatabricksNotebook",
 							"dependsOn": [
 								{
@@ -43,7 +43,7 @@
 							},
 							"userProperties": [],
 							"typeProperties": {
-								"notebookPath": "/Analytics/_Save to History and Determine Changeset",
+								"notebookPath": "/Analytics/_Determine Changeset",
 								"baseParameters": {
 									"SourceSystem": {
 										"value": "@activity('Translate JSON Variables').output.result.SourceSystem",
@@ -144,7 +144,7 @@
 							"type": "SqlServerStoredProcedure",
 							"dependsOn": [
 								{
-									"activity": "Process History and Changeset",
+									"activity": "Determine Changeset",
 									"dependencyConditions": [
 										"Succeeded"
 									]
@@ -191,7 +191,7 @@
 							"type": "SqlServerStoredProcedure",
 							"dependsOn": [
 								{
-									"activity": "Process History and Changeset",
+									"activity": "Determine Changeset",
 									"dependencyConditions": [
 										"Failed"
 									]
