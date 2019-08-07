@@ -1,0 +1,40 @@
+{
+	"name": "Trigger - Start of Day Processing",
+	"properties": {
+		"description": "The trigger is looking for Start of Day (once local time has clocked past midnight).  When this happens, it allows the Process Framework to begin for the day.",
+		"annotations": [],
+		"runtimeState": "Started",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "_Process Type 9 - Execute Sproc in Control Database",
+					"type": "PipelineReference"
+				},
+				"parameters": {
+					"EntityGroupKeyList": "5"
+				}
+			}
+		],
+		"type": "ScheduleTrigger",
+		"typeProperties": {
+			"recurrence": {
+				"frequency": "Day",
+				"interval": 1,
+				"startTime": "2019-08-07T22:02:00.000Z",
+				"timeZone": "UTC",
+				"schedule": {
+					"minutes": [
+						35,
+						45,
+						0
+					],
+					"hours": [
+						13,
+						14,
+						23
+					]
+				}
+			}
+		}
+	}
+}
