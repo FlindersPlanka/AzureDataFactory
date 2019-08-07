@@ -163,7 +163,7 @@
 									},
 									"ExecutionMessage": {
 										"value": {
-											"value": "Error in Data Factory '@{pipeline().DataFactory}' | Pipeline '@{pipeline().Pipeline}' for '@{activity('Translate JSON Variables').output.result.SprocToExecute}: @{activity('Execute Stored Procedure').output.message}",
+											"value": "Error in Data Factory '@{pipeline().DataFactory}' | Pipeline '@{pipeline().Pipeline}' for '@{activity('Translate JSON Variables').output.result.SprocToExecute}: @{activity('Execute Stored Procedure').output}",
 											"type": "Expression"
 										},
 										"type": "String"
