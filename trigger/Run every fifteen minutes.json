@@ -6,7 +6,7 @@
 		"pipelines": [
 			{
 				"pipelineReference": {
-					"referenceName": "_Process Type 9 - Execute Sproc",
+					"referenceName": "_Process Type 9 - Execute Sproc in Control Database",
 					"type": "PipelineReference"
 				},
 				"parameters": {
