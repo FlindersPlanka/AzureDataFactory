@@ -1,5 +1,5 @@
 {
-	"name": "Run every fifteen minutes",
+	"name": "Trigger - Research Now",
 	"properties": {
 		"description": "Research Now",
 		"annotations": [],
@@ -18,10 +18,25 @@
 		"type": "ScheduleTrigger",
 		"typeProperties": {
 			"recurrence": {
-				"frequency": "Minute",
-				"interval": 15,
+				"frequency": "Day",
+				"interval": 1,
 				"startTime": "2019-08-07T08:54:00.000Z",
-				"timeZone": "UTC"
+				"timeZone": "UTC",
+				"schedule": {
+					"minutes": [
+						0,
+						15,
+						30,
+						45
+					],
+					"hours": [
+						14,
+						15,
+						16,
+						17,
+						18
+					]
+				}
 			}
 		}
 	}
