@@ -17,7 +17,7 @@
 		"FlindersUniFileServer_password": {
 			"value": ""
 		},
-		"Trigger - Start of Day Processing_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList": {
+		"Trigger - Start of Day Processing old_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList": {
 			"value": "5"
 		},
 		"JsonFile_Dataset_properties_typeProperties_fileName": {
@@ -43,6 +43,9 @@
 		},
 		"Trigger - Reset Processing Framework_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList": {
 			"value": "6"
+		},
+		"Trigger - Start of Day Processing_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList": {
+			"value": "5"
 		},
 		"containerUri": {
 			"value": ""

@@ -23,7 +23,7 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'DataWarehouseDB'"
 		},
-		"Trigger - Start of Day Processing_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList": {
+		"Trigger - Start of Day Processing old_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList": {
 			"type": "string",
 			"defaultValue": "5"
 		},
@@ -57,7 +57,7 @@
 	},
 	"resources": [
 		{
-			"name": "[concat(parameters('factoryName'), '/Trigger - Start of Day Processing')]",
+			"name": "[concat(parameters('factoryName'), '/Trigger - Start of Day Processing old')]",
 			"type": "Microsoft.DataFactory/factories/triggers",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -71,7 +71,7 @@
 							"type": "PipelineReference"
 						},
 						"parameters": {
-							"EntityGroupKeyList": "[parameters('Trigger - Start of Day Processing_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList')]"
+							"EntityGroupKeyList": "[parameters('Trigger - Start of Day Processing old_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList')]"
 						}
 					}
 				],
