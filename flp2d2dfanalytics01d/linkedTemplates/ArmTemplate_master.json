@@ -51,6 +51,10 @@
 			"type": "string",
 			"defaultValue": "5"
 		},
+		"Run every fifteen minutes_properties__Process Type 7 - ETL - REST API to Data Lake_parameters_EntityGroupKeyList": {
+			"type": "string",
+			"defaultValue": "3"
+		},
 		"containerUri": {
 			"type": "string",
 			"metadata": "URI to storage account containing linked ARM templates"
@@ -128,6 +132,9 @@
 					},
 					"Run every fifteen minutes_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList": {
 						"value": "[parameters('Run every fifteen minutes_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList')]"
+					},
+					"Run every fifteen minutes_properties__Process Type 7 - ETL - REST API to Data Lake_parameters_EntityGroupKeyList": {
+						"value": "[parameters('Run every fifteen minutes_properties__Process Type 7 - ETL - REST API to Data Lake_parameters_EntityGroupKeyList')]"
 					}
 				}
 			},

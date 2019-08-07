@@ -37,6 +37,9 @@
 		},
 		"Run every fifteen minutes_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList": {
 			"value": "5"
+		},
+		"Run every fifteen minutes_properties__Process Type 7 - ETL - REST API to Data Lake_parameters_EntityGroupKeyList": {
+			"value": "3"
 		}
 	}
 }
