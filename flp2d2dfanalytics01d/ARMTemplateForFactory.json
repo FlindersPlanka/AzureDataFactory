@@ -47,17 +47,13 @@
 			"type": "string",
 			"defaultValue": "@{linkedService().BaseUrl}"
 		},
-		"Trigger - New Day_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList": {
-			"type": "string",
-			"defaultValue": "5"
-		},
 		"Trigger - Research Now_properties__Process Type 7 - ETL - REST API to Data Lake_parameters_EntityGroupKeyList": {
 			"type": "string",
 			"defaultValue": "3"
 		},
-		"Trigger - Reset Processing Framework_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList": {
+		"Trigger - Start of Day Processing_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList": {
 			"type": "string",
-			"defaultValue": "6"
+			"defaultValue": "5"
 		}
 	},
 	"variables": {
@@ -5202,49 +5198,6 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/Trigger - New Day')]",
-			"type": "Microsoft.DataFactory/factories/triggers",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "This is the lead trigger that signifies when a new day has begun in the local timezone.  The Process Framework can begin once this trigger returns successfully.",
-				"annotations": [],
-				"runtimeState": "Started",
-				"pipelines": [
-					{
-						"pipelineReference": {
-							"referenceName": "_Process Type 9 - Execute Sproc in Control Database",
-							"type": "PipelineReference"
-						},
-						"parameters": {
-							"EntityGroupKeyList": "[parameters('Trigger - New Day_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList')]"
-						}
-					}
-				],
-				"type": "ScheduleTrigger",
-				"typeProperties": {
-					"recurrence": {
-						"frequency": "Day",
-						"interval": 1,
-						"startTime": "2019-08-07T12:35:00.000Z",
-						"timeZone": "UTC",
-						"schedule": {
-							"minutes": [
-								35,
-								45
-							],
-							"hours": [
-								13,
-								14
-							]
-						}
-					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/_Process Type 9 - Execute Sproc in Control Database')]"
-			]
-		},
-		{
 			"name": "[concat(parameters('factoryName'), '/Trigger - Research Now')]",
 			"type": "Microsoft.DataFactory/factories/triggers",
 			"apiVersion": "2018-06-01",
@@ -5293,11 +5246,21 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/Trigger - Reset Processing Framework')]",
+			"name": "[concat(parameters('factoryName'), '/integrationRuntime3')]",
+			"type": "Microsoft.DataFactory/factories/integrationRuntimes",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "SelfHosted",
+				"typeProperties": {}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Trigger - Start of Day Processing')]",
 			"type": "Microsoft.DataFactory/factories/triggers",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"description": "Reset the Processing Framework",
+				"description": "The trigger is looking for Start of Day (once local time has clocked past midnight).  When this happens, it allows the Process Framework to begin for the day.",
 				"annotations": [],
 				"runtimeState": "Started",
 				"pipelines": [
@@ -5307,7 +5270,7 @@
 							"type": "PipelineReference"
 						},
 						"parameters": {
-							"EntityGroupKeyList": "[parameters('Trigger - Reset Processing Framework_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList')]"
+							"EntityGroupKeyList": "[parameters('Trigger - Start of Day Processing_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList')]"
 						}
 					}
 				],
@@ -5316,7 +5279,7 @@
 					"recurrence": {
 						"frequency": "Day",
 						"interval": 1,
-						"startTime": "2019-08-07T12:44:00.000Z",
+						"startTime": "2019-08-07T22:02:00.000Z",
 						"timeZone": "UTC",
 						"schedule": {
 							"minutes": [
@@ -5324,8 +5287,8 @@
 								45
 							],
 							"hours": [
-								12,
-								13
+								13,
+								14
 							]
 						}
 					}
@@ -5334,16 +5297,6 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/pipelines/_Process Type 9 - Execute Sproc in Control Database')]"
 			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/integrationRuntime3')]",
-			"type": "Microsoft.DataFactory/factories/integrationRuntimes",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"type": "SelfHosted",
-				"typeProperties": {}
-			},
-			"dependsOn": []
 		}
 	]
 }

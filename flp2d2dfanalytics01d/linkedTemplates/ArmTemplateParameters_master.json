@@ -35,14 +35,11 @@
 		"RESTService_properties_typeProperties_url": {
 			"value": "@{linkedService().BaseUrl}"
 		},
-		"Trigger - New Day_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList": {
-			"value": "5"
-		},
 		"Trigger - Research Now_properties__Process Type 7 - ETL - REST API to Data Lake_parameters_EntityGroupKeyList": {
 			"value": "3"
 		},
-		"Trigger - Reset Processing Framework_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList": {
-			"value": "6"
+		"Trigger - Start of Day Processing_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList": {
+			"value": "5"
 		},
 		"containerUri": {
 			"value": ""

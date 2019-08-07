@@ -47,17 +47,13 @@
 			"type": "string",
 			"defaultValue": "@{linkedService().BaseUrl}"
 		},
-		"Trigger - New Day_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList": {
-			"type": "string",
-			"defaultValue": "5"
-		},
 		"Trigger - Research Now_properties__Process Type 7 - ETL - REST API to Data Lake_parameters_EntityGroupKeyList": {
 			"type": "string",
 			"defaultValue": "3"
 		},
-		"Trigger - Reset Processing Framework_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList": {
+		"Trigger - Start of Day Processing_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList": {
 			"type": "string",
-			"defaultValue": "6"
+			"defaultValue": "5"
 		},
 		"containerUri": {
 			"type": "string",
@@ -134,14 +130,11 @@
 					"factoryName": {
 						"value": "[parameters('factoryName')]"
 					},
-					"Trigger - New Day_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList": {
-						"value": "[parameters('Trigger - New Day_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList')]"
-					},
 					"Trigger - Research Now_properties__Process Type 7 - ETL - REST API to Data Lake_parameters_EntityGroupKeyList": {
 						"value": "[parameters('Trigger - Research Now_properties__Process Type 7 - ETL - REST API to Data Lake_parameters_EntityGroupKeyList')]"
 					},
-					"Trigger - Reset Processing Framework_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList": {
-						"value": "[parameters('Trigger - Reset Processing Framework_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList')]"
+					"Trigger - Start of Day Processing_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList": {
+						"value": "[parameters('Trigger - Start of Day Processing_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList')]"
 					}
 				}
 			},
