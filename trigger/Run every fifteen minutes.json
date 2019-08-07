@@ -12,6 +12,15 @@
 				"parameters": {
 					"EntityGroupKeyList": "5"
 				}
+			},
+			{
+				"pipelineReference": {
+					"referenceName": "_Process Type 7 - ETL - REST API to Data Lake",
+					"type": "PipelineReference"
+				},
+				"parameters": {
+					"EntityGroupKeyList": "3"
+				}
 			}
 		],
 		"type": "ScheduleTrigger",
