@@ -10,7 +10,7 @@
 					"type": "PipelineReference"
 				},
 				"parameters": {
-					"EntityGroupKeyList": "9"
+					"EntityGroupKeyList": "5"
 				}
 			}
 		],
