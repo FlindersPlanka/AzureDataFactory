@@ -23,6 +23,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'password' of 'FlindersUniFileServer'"
 		},
+		"Trigger - Start of Day Processing_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList": {
+			"type": "string",
+			"defaultValue": "5"
+		},
 		"JsonFile_Dataset_properties_typeProperties_fileName": {
 			"type": "string",
 			"defaultValue": "@dataset().FileName"
@@ -51,9 +55,9 @@
 			"type": "string",
 			"defaultValue": "3"
 		},
-		"Trigger - Start of Day Processing_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList": {
+		"Trigger - Reset Processing Framework_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList": {
 			"type": "string",
-			"defaultValue": "5"
+			"defaultValue": "6"
 		},
 		"containerUri": {
 			"type": "string",
@@ -94,6 +98,9 @@
 					"DataWarehouseDB_connectionString": {
 						"value": "[parameters('DataWarehouseDB_connectionString')]"
 					},
+					"Trigger - Start of Day Processing_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList": {
+						"value": "[parameters('Trigger - Start of Day Processing_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList')]"
+					},
 					"DataFactoryKeyVault_properties_typeProperties_baseUrl": {
 						"value": "[parameters('DataFactoryKeyVault_properties_typeProperties_baseUrl')]"
 					},
@@ -132,6 +139,9 @@
 					},
 					"Trigger - Research Now_properties__Process Type 7 - ETL - REST API to Data Lake_parameters_EntityGroupKeyList": {
 						"value": "[parameters('Trigger - Research Now_properties__Process Type 7 - ETL - REST API to Data Lake_parameters_EntityGroupKeyList')]"
+					},
+					"Trigger - Reset Processing Framework_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList": {
+						"value": "[parameters('Trigger - Reset Processing Framework_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList')]"
 					},
 					"Trigger - Start of Day Processing_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList": {
 						"value": "[parameters('Trigger - Start of Day Processing_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList')]"

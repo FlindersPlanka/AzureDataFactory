@@ -17,6 +17,9 @@
 		"FlindersUniFileServer_password": {
 			"value": ""
 		},
+		"Trigger - Start of Day Processing_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList": {
+			"value": "5"
+		},
 		"JsonFile_Dataset_properties_typeProperties_fileName": {
 			"value": "@dataset().FileName"
 		},
@@ -38,8 +41,8 @@
 		"Trigger - Research Now_properties__Process Type 7 - ETL - REST API to Data Lake_parameters_EntityGroupKeyList": {
 			"value": "3"
 		},
-		"Trigger - Start of Day Processing_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList": {
-			"value": "5"
+		"Trigger - Reset Processing Framework_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList": {
+			"value": "6"
 		},
 		"containerUri": {
 			"value": ""
