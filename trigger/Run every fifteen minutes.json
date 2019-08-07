@@ -7,15 +7,6 @@
 		"pipelines": [
 			{
 				"pipelineReference": {
-					"referenceName": "_Process Type 9 - Execute Sproc in Control Database",
-					"type": "PipelineReference"
-				},
-				"parameters": {
-					"EntityGroupKeyList": "5"
-				}
-			},
-			{
-				"pipelineReference": {
 					"referenceName": "_Process Type 7 - ETL - REST API to Data Lake",
 					"type": "PipelineReference"
 				},
