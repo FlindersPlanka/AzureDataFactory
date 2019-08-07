@@ -23,10 +23,6 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'password' of 'FlindersUniFileServer'"
 		},
-		"Trigger - Start of Day Processing old_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList": {
-			"type": "string",
-			"defaultValue": "5"
-		},
 		"JsonFile_Dataset_properties_typeProperties_fileName": {
 			"type": "string",
 			"defaultValue": "@dataset().FileName"
@@ -68,49 +64,6 @@
 		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
 	},
 	"resources": [
-		{
-			"name": "[concat(parameters('factoryName'), '/Trigger - Start of Day Processing old')]",
-			"type": "Microsoft.DataFactory/factories/triggers",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "The trigger is looking for Start of Day (once local time has clocked past midnight).  When this happens, it allows the Process Framework to begin for the day.",
-				"annotations": [],
-				"runtimeState": "Started",
-				"pipelines": [
-					{
-						"pipelineReference": {
-							"referenceName": "_Process Type 9 - Execute Sproc in Control Database",
-							"type": "PipelineReference"
-						},
-						"parameters": {
-							"EntityGroupKeyList": "[parameters('Trigger - Start of Day Processing old_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList')]"
-						}
-					}
-				],
-				"type": "ScheduleTrigger",
-				"typeProperties": {
-					"recurrence": {
-						"frequency": "Day",
-						"interval": 1,
-						"startTime": "2019-08-07T22:02:00.000Z",
-						"timeZone": "UTC",
-						"schedule": {
-							"minutes": [
-								35,
-								45
-							],
-							"hours": [
-								13,
-								14
-							]
-						}
-					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/_Process Type 9 - Execute Sproc in Control Database')]"
-			]
-		},
 		{
 			"name": "[concat(parameters('factoryName'), '/_Process Type 1 - Azure SQL DB to Blob')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
@@ -5368,13 +5321,11 @@
 						"schedule": {
 							"minutes": [
 								35,
-								45,
-								25
+								45
 							],
 							"hours": [
 								13,
-								14,
-								23
+								14
 							]
 						}
 					}

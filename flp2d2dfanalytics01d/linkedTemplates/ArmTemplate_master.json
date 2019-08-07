@@ -23,10 +23,6 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'password' of 'FlindersUniFileServer'"
 		},
-		"Trigger - Start of Day Processing old_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList": {
-			"type": "string",
-			"defaultValue": "5"
-		},
 		"JsonFile_Dataset_properties_typeProperties_fileName": {
 			"type": "string",
 			"defaultValue": "@dataset().FileName"
@@ -101,9 +97,6 @@
 					},
 					"DataWarehouseDB_connectionString": {
 						"value": "[parameters('DataWarehouseDB_connectionString')]"
-					},
-					"Trigger - Start of Day Processing old_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList": {
-						"value": "[parameters('Trigger - Start of Day Processing old_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList')]"
 					},
 					"DataFactoryKeyVault_properties_typeProperties_baseUrl": {
 						"value": "[parameters('DataFactoryKeyVault_properties_typeProperties_baseUrl')]"
