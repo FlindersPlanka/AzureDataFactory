@@ -1,5 +1,5 @@
 {
-	"name": "Trigger - Start of Day Processing",
+	"name": "Trigger - Start of Day Processing old",
 	"properties": {
 		"description": "The trigger is looking for Start of Day (once local time has clocked past midnight).  When this happens, it allows the Process Framework to begin for the day.",
 		"annotations": [],
