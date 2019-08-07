@@ -1,7 +1,7 @@
 {
-	"name": "_Process Type 5 - Process Decorator in Data Warehouse",
+	"name": "_Process Type 5 - Execute Sproc in Data Warehouse Database",
 	"properties": {
-		"description": "Process Decorators.\n",
+		"description": "Execute a Stored Procedure in the Data Warehouse Database.",
 		"activities": [
 			{
 				"name": "Process Entity",
