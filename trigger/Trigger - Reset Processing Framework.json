@@ -1,0 +1,38 @@
+{
+	"name": "Trigger - Reset Processing Framework",
+	"properties": {
+		"description": "Reset to False the HasProcessed and IsProcessing flags of the Process.Entity table.  This will prepare the Processing Framework to begin once local time has passed midnight (handled by another Trigger).",
+		"annotations": [],
+		"runtimeState": "Started",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "_Process Type 9 - Execute Sproc in Control Database",
+					"type": "PipelineReference"
+				},
+				"parameters": {
+					"EntityGroupKeyList": "6"
+				}
+			}
+		],
+		"type": "ScheduleTrigger",
+		"typeProperties": {
+			"recurrence": {
+				"frequency": "Day",
+				"interval": 1,
+				"startTime": "2019-08-07T22:06:00.000Z",
+				"timeZone": "UTC",
+				"schedule": {
+					"minutes": [
+						35,
+						45
+					],
+					"hours": [
+						12,
+						13
+					]
+				}
+			}
+		}
+	}
+}
