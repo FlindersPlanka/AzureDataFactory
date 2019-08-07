@@ -6,6 +6,10 @@
 			"type": "string",
 			"metadata": "Data Factory Name",
 			"defaultValue": "flp2d2dfanalytics01d"
+		},
+		"Run every fifteen minutes_properties__Process Type 9 - Execute Sproc_parameters_EntityGroupKeyList": {
+			"type": "string",
+			"defaultValue": "9"
 		}
 	},
 	"variables": {
@@ -3455,6 +3459,38 @@
 				"annotations": []
 			},
 			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Run every fifteen minutes')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Started",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "_Process Type 9 - Execute Sproc",
+							"type": "PipelineReference"
+						},
+						"parameters": {
+							"EntityGroupKeyList": "[parameters('Run every fifteen minutes_properties__Process Type 9 - Execute Sproc_parameters_EntityGroupKeyList')]"
+						}
+					}
+				],
+				"type": "ScheduleTrigger",
+				"typeProperties": {
+					"recurrence": {
+						"frequency": "Minute",
+						"interval": 15,
+						"startTime": "2019-08-07T08:54:00.000Z",
+						"timeZone": "UTC"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/_Process Type 9 - Execute Sproc')]"
+			]
 		}
 	]
 }

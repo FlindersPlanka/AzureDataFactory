@@ -46,6 +46,10 @@
 		"RESTService_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "@{linkedService().BaseUrl}"
+		},
+		"Run every fifteen minutes_properties__Process Type 9 - Execute Sproc_parameters_EntityGroupKeyList": {
+			"type": "string",
+			"defaultValue": "9"
 		}
 	},
 	"variables": {
@@ -5197,6 +5201,38 @@
 				"[concat(variables('factoryId'), '/datasets/ControlDB_Dataset')]",
 				"[concat(variables('factoryId'), '/linkedServices/ControlDB')]",
 				"[concat(variables('factoryId'), '/linkedServices/AzureFunctions')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Run every fifteen minutes')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Started",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "_Process Type 9 - Execute Sproc",
+							"type": "PipelineReference"
+						},
+						"parameters": {
+							"EntityGroupKeyList": "[parameters('Run every fifteen minutes_properties__Process Type 9 - Execute Sproc_parameters_EntityGroupKeyList')]"
+						}
+					}
+				],
+				"type": "ScheduleTrigger",
+				"typeProperties": {
+					"recurrence": {
+						"frequency": "Minute",
+						"interval": 15,
+						"startTime": "2019-08-07T08:54:00.000Z",
+						"timeZone": "UTC"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/_Process Type 9 - Execute Sproc')]"
 			]
 		}
 	]

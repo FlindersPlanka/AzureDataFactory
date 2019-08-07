@@ -47,6 +47,10 @@
 			"type": "string",
 			"defaultValue": "@{linkedService().BaseUrl}"
 		},
+		"Run every fifteen minutes_properties__Process Type 9 - Execute Sproc_parameters_EntityGroupKeyList": {
+			"type": "string",
+			"defaultValue": "9"
+		},
 		"containerUri": {
 			"type": "string",
 			"metadata": "URI to storage account containing linked ARM templates"
@@ -121,6 +125,9 @@
 				"parameters": {
 					"factoryName": {
 						"value": "[parameters('factoryName')]"
+					},
+					"Run every fifteen minutes_properties__Process Type 9 - Execute Sproc_parameters_EntityGroupKeyList": {
+						"value": "[parameters('Run every fifteen minutes_properties__Process Type 9 - Execute Sproc_parameters_EntityGroupKeyList')]"
 					}
 				}
 			},
