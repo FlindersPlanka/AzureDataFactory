@@ -1,0 +1,27 @@
+{
+	"name": "Run every fifteen minutes",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Started",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "_Process Type 9 - Execute Sproc",
+					"type": "PipelineReference"
+				},
+				"parameters": {
+					"EntityGroupKeyList": "9"
+				}
+			}
+		],
+		"type": "ScheduleTrigger",
+		"typeProperties": {
+			"recurrence": {
+				"frequency": "Minute",
+				"interval": 15,
+				"startTime": "2019-08-07T08:54:00.000Z",
+				"timeZone": "UTC"
+			}
+		}
+	}
+}
