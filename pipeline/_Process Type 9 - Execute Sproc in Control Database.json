@@ -1,7 +1,7 @@
 {
-	"name": "_Process Type 9 - Execute Sproc",
+	"name": "_Process Type 9 - Execute Sproc in Control Database",
 	"properties": {
-		"description": "Execute a Stored Procedure on the Control Database.\n\nThe HasProcessed flag on the Entity will be set to True if the Stored Procedure does not return an error.",
+		"description": "Execute a Stored Procedure in the Control Database.\n\nThe HasProcessed flag on the Entity will be set to True if the Stored Procedure does not return an error.",
 		"activities": [
 			{
 				"name": "Process Entity",
