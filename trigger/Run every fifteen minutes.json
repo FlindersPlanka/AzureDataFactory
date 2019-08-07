@@ -1,6 +1,7 @@
 {
 	"name": "Run every fifteen minutes",
 	"properties": {
+		"description": "Research Now",
 		"annotations": [],
 		"runtimeState": "Started",
 		"pipelines": [
