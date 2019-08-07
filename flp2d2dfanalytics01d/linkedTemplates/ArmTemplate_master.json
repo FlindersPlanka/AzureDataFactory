@@ -49,7 +49,7 @@
 		},
 		"Run every fifteen minutes_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList": {
 			"type": "string",
-			"defaultValue": "9"
+			"defaultValue": "5"
 		},
 		"containerUri": {
 			"type": "string",
