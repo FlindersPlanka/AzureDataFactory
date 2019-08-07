@@ -7,7 +7,7 @@
 			"metadata": "Data Factory Name",
 			"defaultValue": "flp2d2dfanalytics01d"
 		},
-		"Run every fifteen minutes_properties__Process Type 9 - Execute Sproc_parameters_EntityGroupKeyList": {
+		"Run every fifteen minutes_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList": {
 			"type": "string",
 			"defaultValue": "9"
 		}
@@ -480,11 +480,11 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/_Process Type 5 - Process Decorator in Data Warehouse')]",
+			"name": "[concat(parameters('factoryName'), '/_Process Type 5 - Execute Sproc in Data Warehouse Database')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"description": "Process Decorators.\n",
+				"description": "Execute a Stored Procedure in the Data Warehouse Database.",
 				"activities": [
 					{
 						"name": "Process Entity",
@@ -3158,11 +3158,11 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/_Process Type 9 - Execute Sproc')]",
+			"name": "[concat(parameters('factoryName'), '/_Process Type 9 - Execute Sproc in Control Database')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"description": "Execute a Stored Procedure on the Control Database.\n\nThe HasProcessed flag on the Entity will be set to True if the Stored Procedure does not return an error.",
+				"description": "Execute a Stored Procedure in the Control Database.\n\nThe HasProcessed flag on the Entity will be set to True if the Stored Procedure does not return an error.",
 				"activities": [
 					{
 						"name": "Process Entity",
@@ -3470,11 +3470,11 @@
 				"pipelines": [
 					{
 						"pipelineReference": {
-							"referenceName": "_Process Type 9 - Execute Sproc",
+							"referenceName": "_Process Type 9 - Execute Sproc in Control Database",
 							"type": "PipelineReference"
 						},
 						"parameters": {
-							"EntityGroupKeyList": "[parameters('Run every fifteen minutes_properties__Process Type 9 - Execute Sproc_parameters_EntityGroupKeyList')]"
+							"EntityGroupKeyList": "[parameters('Run every fifteen minutes_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList')]"
 						}
 					}
 				],
@@ -3489,7 +3489,7 @@
 				}
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/_Process Type 9 - Execute Sproc')]"
+				"[concat(variables('factoryId'), '/pipelines/_Process Type 9 - Execute Sproc in Control Database')]"
 			]
 		}
 	]

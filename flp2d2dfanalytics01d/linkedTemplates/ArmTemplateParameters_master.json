@@ -35,7 +35,7 @@
 		"RESTService_properties_typeProperties_url": {
 			"value": "@{linkedService().BaseUrl}"
 		},
-		"Run every fifteen minutes_properties__Process Type 9 - Execute Sproc_parameters_EntityGroupKeyList": {
+		"Run every fifteen minutes_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList": {
 			"value": "9"
 		},
 		"containerUri": {
