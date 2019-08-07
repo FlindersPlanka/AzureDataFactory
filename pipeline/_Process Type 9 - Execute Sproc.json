@@ -163,7 +163,7 @@
 									},
 									"ExecutionMessage": {
 										"value": {
-											"value": "Error in Data Factory '@{pipeline().DataFactory}' | Pipeline '@{pipeline().Pipeline}' for '@{activity('Translate JSON Variables').output.result.SprocToExecute}: @{activity('Execute Stored Procedure').output}",
+											"value": "Error in Data Factory '@{pipeline().DataFactory}' | Pipeline '@{pipeline().Pipeline}' for '@{activity('Translate JSON Variables').output.result.SprocToExecute}",
 											"type": "Expression"
 										},
 										"type": "String"
@@ -284,7 +284,7 @@
 		"parameters": {
 			"EntityGroupKeyList": {
 				"type": "String",
-				"defaultValue": "3"
+				"defaultValue": "5"
 			}
 		},
 		"variables": {
