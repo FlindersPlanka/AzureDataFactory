@@ -2689,7 +2689,7 @@
 											},
 											"ExecutionMessage": {
 												"value": {
-													"value": "Error in Data Factory '@{pipeline().DataFactory}' | Pipeline '@{pipeline().Pipeline}' | Entity '@{activity('Translate JSON Variables').output.result.SourceSystem}.@{activity('Translate JSON Variables').output.result.EntityName}' | @{activity('Get all other pages from REST API').output.errors[0].Message}",
+													"value": "Error in Data Factory '@{pipeline().DataFactory}' | Pipeline '@{pipeline().Pipeline}' | Entity '@{activity('Translate JSON Variables').output.result.SourceSystem}.@{activity('Translate JSON Variables').output.result.EntityName}' | @{encodeUriComponent(activity('Get all other pages from REST API').output.errors[0].Message)}",
 													"type": "Expression"
 												},
 												"type": "String"
@@ -3316,7 +3316,7 @@
 											},
 											"ExecutionMessage": {
 												"value": {
-													"value": "Error in Data Factory '@{pipeline().DataFactory}' | Pipeline '@{pipeline().Pipeline}' | Entity '@{activity('Translate JSON Variables').output.result.SourceSystem}.@{activity('Translate JSON Variables').output.result.EntityName}' | @{activity('Get the first page from REST API').output.errors[0].Message}",
+													"value": "Error in Data Factory '@{pipeline().DataFactory} | Pipeline @{pipeline().Pipeline}' | Entity '@{activity('Translate JSON Variables').output.result.SourceSystem}.@{activity('Translate JSON Variables').output.result.EntityName}' | @{encodeUriComponent(activity('Get the first page from REST API').output.errors[0].Message)} ",
 													"type": "Expression"
 												},
 												"type": "String"
