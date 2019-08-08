@@ -4094,7 +4094,7 @@
 												"value": "@activity('Translate JSON Variables').output.result.SourceSystem",
 												"type": "Expression"
 											},
-											"EntityName": {
+											"Entity": {
 												"value": "@activity('Translate JSON Variables').output.result.EntityName",
 												"type": "Expression"
 											},
