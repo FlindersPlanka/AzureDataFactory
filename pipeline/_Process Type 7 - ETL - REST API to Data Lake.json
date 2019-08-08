@@ -823,7 +823,7 @@
 									},
 									"ExecutionMessage": {
 										"value": {
-											"value": "Error in Data Factory '@{pipeline().DataFactory} | Pipeline @{pipeline().Pipeline}' | Entity '@{activity('Translate JSON Variables').output.result.SourceSystem}.@{activity('Translate JSON Variables').output.result.EntityName}' | @{replace(substring(activity('Get the first page from REST API').output.errors[0].Message, 0, 208), '/\\\\n', '')} ",
+											"value": "Error in Data Factory '@{pipeline().DataFactory} | Pipeline @{pipeline().Pipeline}' | Entity '@{activity('Translate JSON Variables').output.result.SourceSystem}.@{activity('Translate JSON Variables').output.result.EntityName}' | @{encodeUriComponent(substring(activity('Get the first page from REST API').output.errors[0].Message, 0, 208))} ",
 											"type": "Expression"
 										},
 										"type": "String"
