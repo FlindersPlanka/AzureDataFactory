@@ -50,6 +50,9 @@
 		"Trigger - Start of Day Processing_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList": {
 			"value": "5"
 		},
+		"Trigger - Deconstruct JSON to Table_properties__Process Type 8 - Deconstruct JSON into Tabular Form in Data Lake_parameters_EntityGroupKeyList": {
+			"value": "3"
+		},
 		"containerUri": {
 			"value": ""
 		},

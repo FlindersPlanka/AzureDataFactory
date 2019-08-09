@@ -66,6 +66,10 @@
 		"Trigger - Start of Day Processing_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList": {
 			"type": "string",
 			"defaultValue": "5"
+		},
+		"Trigger - Deconstruct JSON to Table_properties__Process Type 8 - Deconstruct JSON into Tabular Form in Data Lake_parameters_EntityGroupKeyList": {
+			"type": "string",
+			"defaultValue": "3"
 		}
 	},
 	"variables": {
@@ -5861,6 +5865,55 @@
 				"typeProperties": {}
 			},
 			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Trigger - Deconstruct JSON to Table')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Deconstruct the JSON file into a Tabular form.",
+				"annotations": [],
+				"runtimeState": "Started",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "_Process Type 8 - Deconstruct JSON into Tabular Form in Data Lake",
+							"type": "PipelineReference"
+						},
+						"parameters": {
+							"EntityGroupKeyList": "[parameters('Trigger - Deconstruct JSON to Table_properties__Process Type 8 - Deconstruct JSON into Tabular Form in Data Lake_parameters_EntityGroupKeyList')]"
+						}
+					}
+				],
+				"type": "ScheduleTrigger",
+				"typeProperties": {
+					"recurrence": {
+						"frequency": "Day",
+						"interval": 1,
+						"startTime": "2019-08-09T03:14:00.000Z",
+						"timeZone": "UTC",
+						"schedule": {
+							"minutes": [
+								0,
+								15,
+								30,
+								45
+							],
+							"hours": [
+								13,
+								14,
+								15,
+								16,
+								17,
+								18
+							]
+						}
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/_Process Type 8 - Deconstruct JSON into Tabular Form in Data Lake')]"
+			]
 		}
 	]
 }
