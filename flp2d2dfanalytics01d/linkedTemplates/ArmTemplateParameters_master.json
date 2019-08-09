@@ -17,6 +17,9 @@
 		"FlindersUniFileServer_password": {
 			"value": ""
 		},
+		"PASOnPremiseOracleDB_connectionString": {
+			"value": ""
+		},
 		"JsonFile_Dataset_properties_typeProperties_fileName": {
 			"value": "@dataset().FileName"
 		},
@@ -29,13 +32,16 @@
 		"DataFactoryKeyVault_properties_typeProperties_baseUrl": {
 			"value": "https://flp2d2kvdatafactory01d.vault.azure.net/"
 		},
+		"FlindersUniFileServer_properties_typeProperties_host": {
+			"value": "\\\\isd.ad.flinders.edu.au\\Shares\\PS-Planning"
+		},
 		"FlindersUniFileServer_properties_typeProperties_userId": {
 			"value": "ISD\\wood0781"
 		},
 		"RESTService_properties_typeProperties_url": {
 			"value": "@{linkedService().BaseUrl}"
 		},
-		"Trigger - Research Now_properties__Process Type 7 - ETL - REST API to Data Lake_parameters_EntityGroupKeyList": {
+		"Trigger - Research Now - Source to Data Lake_properties__Process Type 7 - ETL - REST API to Data Lake_parameters_EntityGroupKeyList": {
 			"value": "3"
 		},
 		"Trigger - Reset Processing Framework_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList": {
