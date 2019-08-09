@@ -75,7 +75,7 @@
 			"type": "string",
 			"defaultValue": "3"
 		},
-		"Trigger - Process Changeset into Delta Table_properties__Process Type 4 - Apply Changeset to Data Warehouse_parameters_EntityGroupKeyList": {
+		"Trigger - Process Changeset into Delta Table_properties__Process Type 3 - Apply Changeset to Delta Lake_parameters_EntityGroupKeyList": {
 			"type": "string",
 			"defaultValue": "3"
 		},
@@ -175,8 +175,8 @@
 					"Trigger - Determine Changeset_properties__Process Type 2 - Determine Changeset in Data Lake_parameters_EntityGroupKeyList": {
 						"value": "[parameters('Trigger - Determine Changeset_properties__Process Type 2 - Determine Changeset in Data Lake_parameters_EntityGroupKeyList')]"
 					},
-					"Trigger - Process Changeset into Delta Table_properties__Process Type 4 - Apply Changeset to Data Warehouse_parameters_EntityGroupKeyList": {
-						"value": "[parameters('Trigger - Process Changeset into Delta Table_properties__Process Type 4 - Apply Changeset to Data Warehouse_parameters_EntityGroupKeyList')]"
+					"Trigger - Process Changeset into Delta Table_properties__Process Type 3 - Apply Changeset to Delta Lake_parameters_EntityGroupKeyList": {
+						"value": "[parameters('Trigger - Process Changeset into Delta Table_properties__Process Type 3 - Apply Changeset to Delta Lake_parameters_EntityGroupKeyList')]"
 					}
 				}
 			},
