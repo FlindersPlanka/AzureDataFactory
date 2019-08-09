@@ -1,0 +1,33 @@
+{
+	"name": "Trigger - Determine Changeset",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Started",
+		"pipelines": [],
+		"type": "ScheduleTrigger",
+		"typeProperties": {
+			"recurrence": {
+				"frequency": "Day",
+				"interval": 1,
+				"startTime": "2019-08-09T07:37:00.000Z",
+				"timeZone": "UTC",
+				"schedule": {
+					"minutes": [
+						0,
+						15,
+						30,
+						45
+					],
+					"hours": [
+						14,
+						15,
+						16,
+						17,
+						18,
+						19
+					]
+				}
+			}
+		}
+	}
+}
