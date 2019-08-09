@@ -1,0 +1,14 @@
+{
+	"name": "OracleDB_Dataset",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "PASOnPremiseOracleDB",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "OracleTable",
+		"typeProperties": {
+			"tableName": "\"APEX_030200\".\"APEX_APPLICATIONS\""
+		}
+	}
+}
