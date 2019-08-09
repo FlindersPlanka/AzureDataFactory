@@ -1,0 +1,6 @@
+{
+	"name": "PattosPersonalIntegrationRuntime",
+	"properties": {
+		"type": "SelfHosted"
+	}
+}
