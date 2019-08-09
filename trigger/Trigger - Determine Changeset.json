@@ -4,7 +4,17 @@
 		"description": "Determine the Changeset between the Current data and the most recent Previous data.",
 		"annotations": [],
 		"runtimeState": "Started",
-		"pipelines": [],
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "_Process Type 2 - Determine Changeset in Data Lake",
+					"type": "PipelineReference"
+				},
+				"parameters": {
+					"EntityGroupKeyList": "3"
+				}
+			}
+		],
 		"type": "ScheduleTrigger",
 		"typeProperties": {
 			"recurrence": {
