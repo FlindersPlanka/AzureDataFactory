@@ -199,11 +199,8 @@
 							"userProperties": [],
 							"typeProperties": {
 								"source": {
-									"type": "AzureSqlSource",
-									"sqlReaderQuery": {
-										"value": "@activity('Translate JSON Variables').output.result.ExtractQuery",
-										"type": "Expression"
-									}
+									"type": "OracleSource",
+									"partitionOption": "None"
 								},
 								"sink": {
 									"type": "ParquetSink",
@@ -216,18 +213,8 @@
 							},
 							"inputs": [
 								{
-									"referenceName": "AzureSqlDB_Dataset",
-									"type": "DatasetReference",
-									"parameters": {
-										"DatabaseServerName": {
-											"value": "@activity('Translate JSON Variables').output.result.DatabaseServerName",
-											"type": "Expression"
-										},
-										"DatabaseName": {
-											"value": "@activity('Translate JSON Variables').output.result.DatabaseName",
-											"type": "Expression"
-										}
-									}
+									"referenceName": "OracleDB_Dataset",
+									"type": "DatasetReference"
 								}
 							],
 							"outputs": [
