@@ -4,7 +4,17 @@
 		"description": "Deconstruct the JSON file into a Tabular form.",
 		"annotations": [],
 		"runtimeState": "Started",
-		"pipelines": [],
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "_Process Type 8 - Deconstruct JSON into Tabular Form in Data Lake",
+					"type": "PipelineReference"
+				},
+				"parameters": {
+					"EntityGroupKeyList": "3"
+				}
+			}
+		],
 		"type": "ScheduleTrigger",
 		"typeProperties": {
 			"recurrence": {
