@@ -1,6 +1,7 @@
 {
 	"name": "Trigger - Determine Changeset",
 	"properties": {
+		"description": "Determine the Changeset between the Current data and the most recent Previous data.",
 		"annotations": [],
 		"runtimeState": "Started",
 		"pipelines": [],
