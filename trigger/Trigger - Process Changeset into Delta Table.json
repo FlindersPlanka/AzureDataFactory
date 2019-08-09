@@ -4,7 +4,17 @@
 		"description": "Process the Changeset into the Delta Table in the Delta Lake.",
 		"annotations": [],
 		"runtimeState": "Started",
-		"pipelines": [],
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "_Process Type 4 - Apply Changeset to Data Warehouse",
+					"type": "PipelineReference"
+				},
+				"parameters": {
+					"EntityGroupKeyList": "3"
+				}
+			}
+		],
 		"type": "ScheduleTrigger",
 		"typeProperties": {
 			"recurrence": {
