@@ -55,6 +55,10 @@
 			"type": "string",
 			"defaultValue": "@{linkedService().BaseUrl}"
 		},
+		"Trigger - Deconstruct JSON to Table_properties__Process Type 8 - Deconstruct JSON into Tabular Form in Data Lake_parameters_EntityGroupKeyList": {
+			"type": "string",
+			"defaultValue": "3"
+		},
 		"Trigger - Research Now - Source to Data Lake_properties__Process Type 7 - ETL - REST API to Data Lake_parameters_EntityGroupKeyList": {
 			"type": "string",
 			"defaultValue": "3"
@@ -67,7 +71,11 @@
 			"type": "string",
 			"defaultValue": "5"
 		},
-		"Trigger - Deconstruct JSON to Table_properties__Process Type 8 - Deconstruct JSON into Tabular Form in Data Lake_parameters_EntityGroupKeyList": {
+		"Trigger - Determine Changeset_properties__Process Type 2 - Determine Changeset in Data Lake_parameters_EntityGroupKeyList": {
+			"type": "string",
+			"defaultValue": "3"
+		},
+		"Trigger - Process Changeset into Delta Table_properties__Process Type 4 - Apply Changeset to Data Warehouse_parameters_EntityGroupKeyList": {
 			"type": "string",
 			"defaultValue": "3"
 		}
@@ -5713,6 +5721,55 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/Trigger - Deconstruct JSON to Table')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Deconstruct the JSON file into a Tabular form.",
+				"annotations": [],
+				"runtimeState": "Started",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "_Process Type 8 - Deconstruct JSON into Tabular Form in Data Lake",
+							"type": "PipelineReference"
+						},
+						"parameters": {
+							"EntityGroupKeyList": "[parameters('Trigger - Deconstruct JSON to Table_properties__Process Type 8 - Deconstruct JSON into Tabular Form in Data Lake_parameters_EntityGroupKeyList')]"
+						}
+					}
+				],
+				"type": "ScheduleTrigger",
+				"typeProperties": {
+					"recurrence": {
+						"frequency": "Day",
+						"interval": 1,
+						"startTime": "2019-08-09T03:14:00.000Z",
+						"timeZone": "UTC",
+						"schedule": {
+							"minutes": [
+								0,
+								15,
+								30,
+								45
+							],
+							"hours": [
+								14,
+								15,
+								16,
+								17,
+								18,
+								19
+							]
+						}
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/_Process Type 8 - Deconstruct JSON into Tabular Form in Data Lake')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/Trigger - Research Now - Source to Data Lake')]",
 			"type": "Microsoft.DataFactory/factories/triggers",
 			"apiVersion": "2018-06-01",
@@ -5868,21 +5925,21 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/Trigger - Deconstruct JSON to Table')]",
+			"name": "[concat(parameters('factoryName'), '/Trigger - Determine Changeset')]",
 			"type": "Microsoft.DataFactory/factories/triggers",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"description": "Deconstruct the JSON file into a Tabular form.",
+				"description": "Determine the Changeset between the Current data and the most recent Previous data.",
 				"annotations": [],
 				"runtimeState": "Started",
 				"pipelines": [
 					{
 						"pipelineReference": {
-							"referenceName": "_Process Type 8 - Deconstruct JSON into Tabular Form in Data Lake",
+							"referenceName": "_Process Type 2 - Determine Changeset in Data Lake",
 							"type": "PipelineReference"
 						},
 						"parameters": {
-							"EntityGroupKeyList": "[parameters('Trigger - Deconstruct JSON to Table_properties__Process Type 8 - Deconstruct JSON into Tabular Form in Data Lake_parameters_EntityGroupKeyList')]"
+							"EntityGroupKeyList": "[parameters('Trigger - Determine Changeset_properties__Process Type 2 - Determine Changeset in Data Lake_parameters_EntityGroupKeyList')]"
 						}
 					}
 				],
@@ -5891,7 +5948,7 @@
 					"recurrence": {
 						"frequency": "Day",
 						"interval": 1,
-						"startTime": "2019-08-09T03:14:00.000Z",
+						"startTime": "2019-08-09T07:37:00.000Z",
 						"timeZone": "UTC",
 						"schedule": {
 							"minutes": [
@@ -5913,7 +5970,56 @@
 				}
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/_Process Type 8 - Deconstruct JSON into Tabular Form in Data Lake')]"
+				"[concat(variables('factoryId'), '/pipelines/_Process Type 2 - Determine Changeset in Data Lake')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Trigger - Process Changeset into Delta Table')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Process the Changeset into the Delta Table in the Delta Lake.",
+				"annotations": [],
+				"runtimeState": "Started",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "_Process Type 4 - Apply Changeset to Data Warehouse",
+							"type": "PipelineReference"
+						},
+						"parameters": {
+							"EntityGroupKeyList": "[parameters('Trigger - Process Changeset into Delta Table_properties__Process Type 4 - Apply Changeset to Data Warehouse_parameters_EntityGroupKeyList')]"
+						}
+					}
+				],
+				"type": "ScheduleTrigger",
+				"typeProperties": {
+					"recurrence": {
+						"frequency": "Day",
+						"interval": 1,
+						"startTime": "2019-08-09T08:15:00.000Z",
+						"timeZone": "UTC",
+						"schedule": {
+							"minutes": [
+								0,
+								15,
+								30,
+								45
+							],
+							"hours": [
+								14,
+								15,
+								16,
+								17,
+								18,
+								19
+							]
+						}
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/_Process Type 4 - Apply Changeset to Data Warehouse')]"
 			]
 		}
 	]
