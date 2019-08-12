@@ -4,7 +4,17 @@
 		"description": "Reset to False the HasProcessed and IsProcessing flags of the Process.Entity table.  This will prepare the Processing Framework to begin once local time has passed midnight (handled by another Trigger).",
 		"annotations": [],
 		"runtimeState": "Started",
-		"pipelines": [],
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "_Process Type 9 - Execute Query in Control Database",
+					"type": "PipelineReference"
+				},
+				"parameters": {
+					"EntityGroupKeyList": "6"
+				}
+			}
+		],
 		"type": "ScheduleTrigger",
 		"typeProperties": {
 			"recurrence": {

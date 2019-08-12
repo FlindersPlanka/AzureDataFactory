@@ -161,7 +161,7 @@
 												},
 												"ExecutionMessage": {
 													"value": {
-														"value": "Error in Data Factory '@{pipeline().DataFactory}' | Pipeline '@{pipeline().Pipeline}' for '@{activity('Translate JSON Variables').output.result.QueryToExecute} - @{activity('Execute Query').output.firstRow.Message}",
+														"value": "Error in Data Factory '@{pipeline().DataFactory}' | Pipeline '@{pipeline().Pipeline}' for '@{activity('Translate JSON Variables').output.result.QueryToExecute}' - @{activity('Execute Query').output.firstRow.Message}",
 														"type": "Expression"
 													},
 													"type": "String"
@@ -207,7 +207,7 @@
 												},
 												"ExecutionMessage": {
 													"value": {
-														"value": "Success in Data Factory '@{pipeline().DataFactory}' | Pipeline '@{pipeline().Pipeline}' for '@{activity('Translate JSON Variables').output.result.QueryToExecute} - @{activity('Execute Query').output.firstRow.Message}",
+														"value": "Success in Data Factory '@{pipeline().DataFactory}' | Pipeline '@{pipeline().Pipeline}' for '@{activity('Translate JSON Variables').output.result.QueryToExecute}' - @{activity('Execute Query').output.firstRow.Message}",
 														"type": "Expression"
 													},
 													"type": "String"
@@ -253,7 +253,7 @@
 									},
 									"ExecutionMessage": {
 										"value": {
-											"value": "Error in Data Factory '@{pipeline().DataFactory}' | Pipeline '@{pipeline().Pipeline}' for '@{activity('Translate JSON Variables').output.result.QueryToExecute} - @{activity('Execute Query').output.errors[0].Message}",
+											"value": "Error in Data Factory '@{pipeline().DataFactory}' | Pipeline '@{pipeline().Pipeline}' for '@{activity('Translate JSON Variables').output.result.QueryToExecute}' - @{activity('Execute Query').output.errors[0].Message}",
 											"type": "Expression"
 										},
 										"type": "String"
@@ -352,9 +352,6 @@
 				"type": "String",
 				"defaultValue": "9"
 			}
-		},
-		"folder": {
-			"name": "Experimentation"
 		},
 		"annotations": []
 	},
