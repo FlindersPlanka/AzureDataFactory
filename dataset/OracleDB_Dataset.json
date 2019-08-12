@@ -45,12 +45,6 @@
 			}
 		},
 		"annotations": [],
-		"type": "OracleTable",
-		"typeProperties": {
-			"tableName": {
-				"value": "@dataset().ExtractQuery",
-				"type": "Expression"
-			}
-		}
+		"type": "OracleTable"
 	}
 }
