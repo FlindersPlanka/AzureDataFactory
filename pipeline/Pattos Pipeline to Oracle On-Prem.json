@@ -156,7 +156,29 @@
 							"inputs": [
 								{
 									"referenceName": "OracleDB_Dataset",
-									"type": "DatasetReference"
+									"type": "DatasetReference",
+									"parameters": {
+										"Host": {
+											"value": "@activity('Translate JSON Variables').output.result.Host",
+											"type": "Expression"
+										},
+										"Port": {
+											"value": "@activity('Translate JSON Variables').output.result.Port",
+											"type": "Expression"
+										},
+										"SID": {
+											"value": "@activity('Translate JSON Variables').output.result.SID",
+											"type": "Expression"
+										},
+										"Username": {
+											"value": "@activity('Translate JSON Variables').output.result.Username",
+											"type": "Expression"
+										},
+										"Password": {
+											"value": "@activity('Translate JSON Variables').output.result.Password",
+											"type": "Expression"
+										}
+									}
 								}
 							],
 							"outputs": [
@@ -316,7 +338,7 @@
 		"variables": {
 			"ProcessTypeKey": {
 				"type": "String",
-				"defaultValue": "10"
+				"defaultValue": "13"
 			}
 		},
 		"folder": {
