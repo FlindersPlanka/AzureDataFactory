@@ -177,6 +177,10 @@
 										"Password": {
 											"value": "@activity('Translate JSON Variables').output.result.Password",
 											"type": "Expression"
+										},
+										"ExtractQuery": {
+											"value": "@activity('Translate JSON Variables').output.result.ExtractQuery",
+											"type": "Expression"
 										}
 									}
 								}
