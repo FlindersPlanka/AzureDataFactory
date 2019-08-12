@@ -426,6 +426,53 @@
 									}
 								]
 							}
+						},
+						{
+							"name": "Indicate Failure 2",
+							"type": "SqlServerStoredProcedure",
+							"dependsOn": [
+								{
+									"activity": "Save to History",
+									"dependencyConditions": [
+										"Failed"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"storedProcedureName": "[Process].[up_UpdateEntityDiagnostics]",
+								"storedProcedureParameters": {
+									"EntityKey": {
+										"value": {
+											"value": "@item().EntityKey",
+											"type": "Expression"
+										},
+										"type": "Int32"
+									},
+									"ExecutionMessage": {
+										"value": {
+											"value": "Error in Data Factory '@{pipeline().DataFactory}' | Pipeline '@{pipeline().Pipeline}' | Entity '@{activity('Translate JSON Variables').output.result.SourceSystem}.@{activity('Translate JSON Variables').output.result.EntityName}' | @{activity('Save to History').errors[0].Message}",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"Result": {
+										"value": "Failure",
+										"type": "String"
+									}
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "ControlDB",
+								"type": "LinkedServiceReference"
+							}
 						}
 					]
 				}
