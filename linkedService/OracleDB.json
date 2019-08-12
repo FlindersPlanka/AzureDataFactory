@@ -2,11 +2,27 @@
 	"name": "OracleDB",
 	"type": "Microsoft.DataFactory/factories/linkedservices",
 	"properties": {
+		"parameters": {
+			"Host": {
+				"type": "string"
+			},
+			"Port": {
+				"type": "string"
+			},
+			"SID": {
+				"type": "string"
+			},
+			"Username": {
+				"type": "string"
+			},
+			"Password": {
+				"type": "string"
+			}
+		},
 		"annotations": [],
 		"type": "Oracle",
 		"typeProperties": {
-			"connectionString": "host=ba-db-uat.it.ad.flinders.edu.au;port=1521;sid=BIZWHUAT;user id=pate0825",
-			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiJlOTMzYWQ0OS1iMGUyLTQ1NGItOTVjZC1jYjAzZTU3NTg2ODIiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
+			"connectionString": "host=@{linkedService().Host};port=@{linkedService().Port};sid=@{linkedService().SID};user id=@{linkedService().Username};Password=@{linkedService().Password}"
 		},
 		"connectVia": {
 			"referenceName": "PattosPersonalIntegrationRuntime",
