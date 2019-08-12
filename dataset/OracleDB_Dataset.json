@@ -42,9 +42,6 @@
 			},
 			"Password": {
 				"type": "string"
-			},
-			"ExtractQuery": {
-				"type": "string"
 			}
 		},
 		"annotations": [],
