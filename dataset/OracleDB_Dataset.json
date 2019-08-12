@@ -47,7 +47,10 @@
 		"annotations": [],
 		"type": "OracleTable",
 		"typeProperties": {
-			"tableName": "\"APEX_030200\".\"APEX_APPLICATIONS\""
+			"tableName": {
+				"value": "@activity('Translate JSON Variables').output.result.ExtractQuery",
+				"type": "Expression"
+			}
 		}
 	}
 }
