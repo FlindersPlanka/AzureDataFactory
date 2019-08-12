@@ -5,6 +5,23 @@
 			"referenceName": "OracleDB",
 			"type": "LinkedServiceReference"
 		},
+		"parameters": {
+			"Host": {
+				"type": "string"
+			},
+			"Port": {
+				"type": "string"
+			},
+			"SID": {
+				"type": "string"
+			},
+			"Username": {
+				"type": "string"
+			},
+			"Password": {
+				"type": "string"
+			}
+		},
 		"annotations": [],
 		"type": "OracleTable",
 		"typeProperties": {
