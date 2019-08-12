@@ -51,7 +51,7 @@
 		"type": "OracleTable",
 		"typeProperties": {
 			"tableName": {
-				"value": "@activity('Translate JSON Variables').output.result.ExtractQuery",
+				"value": "@dataset().ExtractQuery",
 				"type": "Expression"
 			}
 		}
