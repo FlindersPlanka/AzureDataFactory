@@ -336,7 +336,7 @@
 		"parameters": {
 			"EntityGroupKeyList": {
 				"type": "String",
-				"defaultValue": "2"
+				"defaultValue": "7"
 			}
 		},
 		"variables": {
