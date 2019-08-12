@@ -27,10 +27,6 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'OracleDB'"
 		},
-		"PASOnPremiseOracleDB_connectionString": {
-			"type": "secureString",
-			"metadata": "Secure string for 'connectionString' of 'PASOnPremiseOracleDB'"
-		},
 		"JsonFile_Dataset_properties_typeProperties_fileName": {
 			"type": "string",
 			"defaultValue": "@dataset().FileName"
@@ -75,11 +71,15 @@
 			"type": "string",
 			"defaultValue": "3"
 		},
-		"Trigger - Reset Processing Framework_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList": {
+		"Trigger - Reset Processing Framework_properties__Process Type 9 - Execute Query in Control Database_parameters_EntityGroupKeyList": {
 			"type": "string",
 			"defaultValue": "6"
 		},
 		"Trigger - Start of Day Processing_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList": {
+			"type": "string",
+			"defaultValue": "5"
+		},
+		"Trigger - Start of Day Processing_properties__Process Type 9 - Execute Query in Control Database_parameters_EntityGroupKeyList": {
 			"type": "string",
 			"defaultValue": "5"
 		}
@@ -235,6 +235,10 @@
 									"typeProperties": {
 										"source": {
 											"type": "OracleSource",
+											"oracleReaderQuery": {
+												"value": "@activity('Translate JSON Variables').output.result.ExtractQuery",
+												"type": "Expression"
+											},
 											"partitionOption": "None"
 										},
 										"sink": {
@@ -250,7 +254,28 @@
 										{
 											"referenceName": "OracleDB_Dataset",
 											"type": "DatasetReference",
-											"parameters": {}
+											"parameters": {
+												"Host": {
+													"value": "@activity('Translate JSON Variables').output.result.Host",
+													"type": "Expression"
+												},
+												"Port": {
+													"value": "@activity('Translate JSON Variables').output.result.Port",
+													"type": "Expression"
+												},
+												"SID": {
+													"value": "@activity('Translate JSON Variables').output.result.SID",
+													"type": "Expression"
+												},
+												"Username": {
+													"value": "@activity('Translate JSON Variables').output.result.Username",
+													"type": "Expression"
+												},
+												"Password": {
+													"value": "@activity('Translate JSON Variables').output.result.Password",
+													"type": "Expression"
+												}
+											}
 										}
 									],
 									"outputs": [
@@ -275,7 +300,7 @@
 									"type": "SqlServerStoredProcedure",
 									"dependsOn": [
 										{
-											"activity": "Import Data",
+											"activity": "Save to History",
 											"dependencyConditions": [
 												"Succeeded"
 											]
@@ -397,6 +422,152 @@
 										"referenceName": "AzureFunctions",
 										"type": "LinkedServiceReference"
 									}
+								},
+								{
+									"name": "Save to History",
+									"description": "Save to History if required.",
+									"type": "IfCondition",
+									"dependsOn": [
+										{
+											"activity": "Import Data",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"expression": {
+											"value": "@equals(activity('Translate JSON Variables').output.result.SaveToHistory, 'True')",
+											"type": "Expression"
+										},
+										"ifTrueActivities": [
+											{
+												"name": "Add DataDate and Save to History",
+												"type": "DatabricksNotebook",
+												"dependsOn": [
+													{
+														"activity": "Lookup the Data Date",
+														"dependencyConditions": [
+															"Succeeded"
+														]
+													}
+												],
+												"policy": {
+													"timeout": "7.00:00:00",
+													"retry": 0,
+													"retryIntervalInSeconds": 30,
+													"secureOutput": false,
+													"secureInput": false
+												},
+												"userProperties": [],
+												"typeProperties": {
+													"notebookPath": "/Analytics/_Add DataDate and Save to History",
+													"baseParameters": {
+														"Scope": {
+															"value": "@activity('Translate JSON Variables').output.result.Scope",
+															"type": "Expression"
+														},
+														"SourceSystem": {
+															"value": "@activity('Translate JSON Variables').output.result.SourceSystem",
+															"type": "Expression"
+														},
+														"Entity": {
+															"value": "@activity('Translate JSON Variables').output.result.EntityName",
+															"type": "Expression"
+														},
+														"DataDate": {
+															"value": "@string(activity('Lookup the Data Date').output.firstRow.DataDate)",
+															"type": "Expression"
+														},
+														"FileFormat": {
+															"value": "@activity('Translate JSON Variables').output.result.FileFormat",
+															"type": "Expression"
+														}
+													}
+												},
+												"linkedServiceName": {
+													"referenceName": "AzureDatabricks",
+													"type": "LinkedServiceReference"
+												}
+											},
+											{
+												"name": "Lookup the Data Date",
+												"description": "Read the Control table that specifies which date this data pertains to.",
+												"type": "Lookup",
+												"dependsOn": [],
+												"policy": {
+													"timeout": "7.00:00:00",
+													"retry": 0,
+													"retryIntervalInSeconds": 30,
+													"secureOutput": false,
+													"secureInput": false
+												},
+												"userProperties": [],
+												"typeProperties": {
+													"source": {
+														"type": "AzureSqlSource",
+														"sqlReaderQuery": {
+															"value": "@activity('Translate JSON Variables').output.result.DataDateQuery",
+															"type": "Expression"
+														}
+													},
+													"dataset": {
+														"referenceName": "ControlDB_Dataset",
+														"type": "DatasetReference",
+														"parameters": {}
+													}
+												}
+											}
+										]
+									}
+								},
+								{
+									"name": "Indicate Failure 2",
+									"type": "SqlServerStoredProcedure",
+									"dependsOn": [
+										{
+											"activity": "Save to History",
+											"dependencyConditions": [
+												"Failed"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"storedProcedureName": "[[Process].[up_UpdateEntityDiagnostics]",
+										"storedProcedureParameters": {
+											"EntityKey": {
+												"value": {
+													"value": "@item().EntityKey",
+													"type": "Expression"
+												},
+												"type": "Int32"
+											},
+											"ExecutionMessage": {
+												"value": {
+													"value": "Error in Data Factory '@{pipeline().DataFactory}' | Pipeline '@{pipeline().Pipeline}' | Entity '@{activity('Translate JSON Variables').output.result.SourceSystem}.@{activity('Translate JSON Variables').output.result.EntityName}' | @{activity('Save to History').errors[0].Message}",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"Result": {
+												"value": "Failure",
+												"type": "String"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "ControlDB",
+										"type": "LinkedServiceReference"
+									}
 								}
 							]
 						}
@@ -405,7 +576,7 @@
 				"parameters": {
 					"EntityGroupKeyList": {
 						"type": "String",
-						"defaultValue": "2"
+						"defaultValue": "7"
 					}
 				},
 				"variables": {
@@ -415,7 +586,7 @@
 					}
 				},
 				"folder": {
-					"name": "Inactive"
+					"name": "Experimentation"
 				},
 				"annotations": []
 			},
@@ -424,40 +595,8 @@
 				"[concat(variables('factoryId'), '/linkedServices/ControlDB')]",
 				"[concat(variables('factoryId'), '/datasets/OracleDB_Dataset')]",
 				"[concat(variables('factoryId'), '/datasets/ParquetBlobStorage_Dataset')]",
-				"[concat(variables('factoryId'), '/linkedServices/AzureFunctions')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Test Execute Sproc')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Stored Procedure1",
-						"type": "SqlServerStoredProcedure",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "7.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"storedProcedureName": "Control.up_MicksTest @Param1 = 'Mick'"
-						},
-						"linkedServiceName": {
-							"referenceName": "ControlDB",
-							"type": "LinkedServiceReference"
-						}
-					}
-				],
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/ControlDB')]"
+				"[concat(variables('factoryId'), '/linkedServices/AzureFunctions')]",
+				"[concat(variables('factoryId'), '/linkedServices/AzureDatabricks')]"
 			]
 		},
 		{
@@ -5292,13 +5431,50 @@
 			"properties": {
 				"linkedServiceName": {
 					"referenceName": "OracleDB",
-					"type": "LinkedServiceReference"
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"Host": {
+							"value": "@dataset().Host",
+							"type": "Expression"
+						},
+						"Port": {
+							"value": "@dataset().Port",
+							"type": "Expression"
+						},
+						"SID": {
+							"value": "@dataset().SID",
+							"type": "Expression"
+						},
+						"Username": {
+							"value": "@dataset().Username",
+							"type": "Expression"
+						},
+						"Password": {
+							"value": "@dataset().Password",
+							"type": "Expression"
+						}
+					}
+				},
+				"parameters": {
+					"Host": {
+						"type": "string"
+					},
+					"Port": {
+						"type": "string"
+					},
+					"SID": {
+						"type": "string"
+					},
+					"Username": {
+						"type": "string"
+					},
+					"Password": {
+						"type": "string"
+					}
 				},
 				"annotations": [],
 				"type": "OracleTable",
-				"typeProperties": {
-					"tableName": "\"APEX_030200\".\"APEX_APPLICATIONS\""
-				}
+				"typeProperties": {}
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/OracleDB')]"
@@ -5601,30 +5777,27 @@
 			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
 			"properties": {
+				"parameters": {
+					"Host": {
+						"type": "string"
+					},
+					"Port": {
+						"type": "string"
+					},
+					"SID": {
+						"type": "string"
+					},
+					"Username": {
+						"type": "string"
+					},
+					"Password": {
+						"type": "string"
+					}
+				},
 				"annotations": [],
 				"type": "Oracle",
 				"typeProperties": {
 					"connectionString": "[parameters('OracleDB_connectionString')]"
-				},
-				"connectVia": {
-					"referenceName": "PattosPersonalIntegrationRuntime",
-					"type": "IntegrationRuntimeReference"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/integrationRuntimes/PattosPersonalIntegrationRuntime')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/PASOnPremiseOracleDB')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "Connection utilising personal integration runtime to the PAS Oracle \"BIZWHUAT\" instance on the ba-db-uat.it.ad.flinders.edu.au server",
-				"annotations": [],
-				"type": "Oracle",
-				"typeProperties": {
-					"connectionString": "[parameters('PASOnPremiseOracleDB_connectionString')]"
 				},
 				"connectVia": {
 					"referenceName": "PattosPersonalIntegrationRuntime",
@@ -5862,11 +6035,11 @@
 				"pipelines": [
 					{
 						"pipelineReference": {
-							"referenceName": "_Process Type 9 - Execute Sproc in Control Database",
+							"referenceName": "_Process Type 9 - Execute Query in Control Database",
 							"type": "PipelineReference"
 						},
 						"parameters": {
-							"EntityGroupKeyList": "[parameters('Trigger - Reset Processing Framework_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList')]"
+							"EntityGroupKeyList": "[parameters('Trigger - Reset Processing Framework_properties__Process Type 9 - Execute Query in Control Database_parameters_EntityGroupKeyList')]"
 						}
 					}
 				],
@@ -5891,7 +6064,7 @@
 				}
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/_Process Type 9 - Execute Sproc in Control Database')]"
+				"[concat(variables('factoryId'), '/pipelines/_Process Type 9 - Execute Query in Control Database')]"
 			]
 		},
 		{
@@ -5910,6 +6083,15 @@
 						},
 						"parameters": {
 							"EntityGroupKeyList": "[parameters('Trigger - Start of Day Processing_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList')]"
+						}
+					},
+					{
+						"pipelineReference": {
+							"referenceName": "_Process Type 9 - Execute Query in Control Database",
+							"type": "PipelineReference"
+						},
+						"parameters": {
+							"EntityGroupKeyList": "[parameters('Trigger - Start of Day Processing_properties__Process Type 9 - Execute Query in Control Database_parameters_EntityGroupKeyList')]"
 						}
 					}
 				],
@@ -5934,7 +6116,8 @@
 				}
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/_Process Type 9 - Execute Sproc in Control Database')]"
+				"[concat(variables('factoryId'), '/pipelines/_Process Type 9 - Execute Sproc in Control Database')]",
+				"[concat(variables('factoryId'), '/pipelines/_Process Type 9 - Execute Query in Control Database')]"
 			]
 		},
 		{
@@ -5956,6 +6139,374 @@
 				"typeProperties": {}
 			},
 			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/_Process Type 9 - Execute Query in Control Database')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Execute a Query in the Control Database.\n\nIt is assumed that the query will return a recordset with two columns: Result (tinyint) and Message (varchar).  If Result is 0, the query is assumed to have executed successfully and HasProcessed will be set to 1.  If Result is 1, the query is assumed to have not run successfully and thus HasProcessed will not be set. ",
+				"activities": [
+					{
+						"name": "Process Entity",
+						"description": "Process each individual Entity.",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "Filter out Invalid Entities",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Filter out Invalid Entities').output.value",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "Set Process Start Time",
+									"description": "Set the LastRunStartTime for this Entity",
+									"type": "SqlServerStoredProcedure",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"storedProcedureName": "[[Process].[up_UpdateEntityProcessStartTime]",
+										"storedProcedureParameters": {
+											"EntityKey": {
+												"value": {
+													"value": "@item().EntityKey",
+													"type": "Expression"
+												},
+												"type": "Int32"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "ControlDB",
+										"type": "LinkedServiceReference"
+									}
+								},
+								{
+									"name": "Translate JSON Variables",
+									"description": "Accept four parameters, VariablesJSON, OverrideVariablesJSON, ConfigurationJSON and DefaultsJSON and translate into a recordset where the columns are a representation of the nodes in the resultant JSON.",
+									"type": "AzureFunctionActivity",
+									"dependsOn": [
+										{
+											"activity": "Set Process Start Time",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"functionName": "TranslateVariables",
+										"method": "POST",
+										"headers": {},
+										"body": {
+											"value": "@item()",
+											"type": "Expression"
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "AzureFunctions",
+										"type": "LinkedServiceReference"
+									}
+								},
+								{
+									"name": "Execute Query",
+									"type": "Lookup",
+									"dependsOn": [
+										{
+											"activity": "Translate JSON Variables",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "AzureSqlSource",
+											"sqlReaderQuery": {
+												"value": "@activity('Translate JSON Variables').output.result.QueryToExecute",
+												"type": "Expression"
+											}
+										},
+										"dataset": {
+											"referenceName": "ControlDB_Dataset",
+											"type": "DatasetReference",
+											"parameters": {}
+										}
+									}
+								},
+								{
+									"name": "Check Query Execution Result",
+									"description": "The Query is assumed to return a single row recordset containing two columns, Result and Message.",
+									"type": "IfCondition",
+									"dependsOn": [
+										{
+											"activity": "Execute Query",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"expression": {
+											"value": "@equals(activity('Execute Query').output.firstRow.Result, 0)",
+											"type": "Expression"
+										},
+										"ifFalseActivities": [
+											{
+												"name": "Indicate Failure 2",
+												"type": "SqlServerStoredProcedure",
+												"dependsOn": [],
+												"policy": {
+													"timeout": "7.00:00:00",
+													"retry": 0,
+													"retryIntervalInSeconds": 30,
+													"secureOutput": false,
+													"secureInput": false
+												},
+												"userProperties": [],
+												"typeProperties": {
+													"storedProcedureName": "[[Process].[up_UpdateEntityDiagnostics]",
+													"storedProcedureParameters": {
+														"EntityKey": {
+															"value": {
+																"value": "@item().EntityKey",
+																"type": "Expression"
+															},
+															"type": "Int32"
+														},
+														"ExecutionMessage": {
+															"value": {
+																"value": "Error in Data Factory '@{pipeline().DataFactory}' | Pipeline '@{pipeline().Pipeline}' for '@{activity('Translate JSON Variables').output.result.QueryToExecute}' - @{activity('Execute Query').output.firstRow.Message}",
+																"type": "Expression"
+															},
+															"type": "String"
+														},
+														"Result": {
+															"value": "Failure",
+															"type": "String"
+														}
+													}
+												},
+												"linkedServiceName": {
+													"referenceName": "ControlDB",
+													"type": "LinkedServiceReference"
+												}
+											}
+										],
+										"ifTrueActivities": [
+											{
+												"name": "Indicate Success",
+												"type": "SqlServerStoredProcedure",
+												"dependsOn": [],
+												"policy": {
+													"timeout": "7.00:00:00",
+													"retry": 0,
+													"retryIntervalInSeconds": 30,
+													"secureOutput": false,
+													"secureInput": false
+												},
+												"userProperties": [],
+												"typeProperties": {
+													"storedProcedureName": "[[Process].[up_UpdateEntityDiagnostics]",
+													"storedProcedureParameters": {
+														"EntityKey": {
+															"value": {
+																"value": "@item().EntityKey",
+																"type": "Expression"
+															},
+															"type": "Int32"
+														},
+														"Result": {
+															"value": "Success",
+															"type": "String"
+														},
+														"ExecutionMessage": {
+															"value": {
+																"value": "Success in Data Factory '@{pipeline().DataFactory}' | Pipeline '@{pipeline().Pipeline}' for '@{activity('Translate JSON Variables').output.result.QueryToExecute}' - @{activity('Execute Query').output.firstRow.Message}",
+																"type": "Expression"
+															},
+															"type": "String"
+														}
+													}
+												},
+												"linkedServiceName": {
+													"referenceName": "ControlDB",
+													"type": "LinkedServiceReference"
+												}
+											}
+										]
+									}
+								},
+								{
+									"name": "Indicate Failure 1",
+									"type": "SqlServerStoredProcedure",
+									"dependsOn": [
+										{
+											"activity": "Execute Query",
+											"dependencyConditions": [
+												"Failed"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"storedProcedureName": "[[Process].[up_UpdateEntityDiagnostics]",
+										"storedProcedureParameters": {
+											"EntityKey": {
+												"value": {
+													"value": "@item().EntityKey",
+													"type": "Expression"
+												},
+												"type": "Int32"
+											},
+											"ExecutionMessage": {
+												"value": {
+													"value": "Error in Data Factory '@{pipeline().DataFactory}' | Pipeline '@{pipeline().Pipeline}' for '@{activity('Translate JSON Variables').output.result.QueryToExecute}' - @{activity('Execute Query').output.errors[0].Message}",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"Result": {
+												"value": "Failure",
+												"type": "String"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "ControlDB",
+										"type": "LinkedServiceReference"
+									}
+								}
+							]
+						}
+					},
+					{
+						"name": "Get Entities to Process",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderStoredProcedureName": "[[Process].[up_GetEntitiesToProcess]",
+								"storedProcedureParameters": {
+									"BatchSize": {
+										"type": "Int32",
+										"value": "999999"
+									},
+									"EntityGroupKeyList": {
+										"type": "String",
+										"value": {
+											"value": "@pipeline().parameters.EntityGroupKeyList",
+											"type": "Expression"
+										}
+									},
+									"ProcessTypeKey": {
+										"type": "Int32",
+										"value": {
+											"value": "@variables('ProcessTypeKey')",
+											"type": "Expression"
+										}
+									}
+								}
+							},
+							"dataset": {
+								"referenceName": "ControlDB_Dataset",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"firstRowOnly": false
+						}
+					},
+					{
+						"name": "Filter out Invalid Entities",
+						"description": "If the EntityKey < 0, filter out.  An EntityKey of -1 is used to indicate there are no Entities to Process.",
+						"type": "Filter",
+						"dependsOn": [
+							{
+								"activity": "Get Entities to Process",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Get Entities to Process').output.value",
+								"type": "Expression"
+							},
+							"condition": {
+								"value": "@greater(item().EntityKey, 0)",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"parameters": {
+					"EntityGroupKeyList": {
+						"type": "String",
+						"defaultValue": "5"
+					}
+				},
+				"variables": {
+					"ProcessTypeKey": {
+						"type": "String",
+						"defaultValue": "9"
+					}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ControlDB_Dataset')]",
+				"[concat(variables('factoryId'), '/linkedServices/ControlDB')]",
+				"[concat(variables('factoryId'), '/linkedServices/AzureFunctions')]"
+			]
 		}
 	]
 }

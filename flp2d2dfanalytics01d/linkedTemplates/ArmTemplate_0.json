@@ -27,10 +27,6 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'OracleDB'"
 		},
-		"PASOnPremiseOracleDB_connectionString": {
-			"type": "secureString",
-			"metadata": "Secure string for 'connectionString' of 'PASOnPremiseOracleDB'"
-		},
 		"DataFactoryKeyVault_properties_typeProperties_baseUrl": {
 			"type": "string",
 			"defaultValue": "https://flp2d2kvdatafactory01d.vault.azure.net/"
@@ -392,6 +388,23 @@
 			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
 			"properties": {
+				"parameters": {
+					"Host": {
+						"type": "string"
+					},
+					"Port": {
+						"type": "string"
+					},
+					"SID": {
+						"type": "string"
+					},
+					"Username": {
+						"type": "string"
+					},
+					"Password": {
+						"type": "string"
+					}
+				},
 				"annotations": [],
 				"type": "Oracle",
 				"typeProperties": {
@@ -404,59 +417,6 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/integrationRuntimes/PattosPersonalIntegrationRuntime')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/PASOnPremiseOracleDB')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "Connection utilising personal integration runtime to the PAS Oracle \"BIZWHUAT\" instance on the ba-db-uat.it.ad.flinders.edu.au server",
-				"annotations": [],
-				"type": "Oracle",
-				"typeProperties": {
-					"connectionString": "[parameters('PASOnPremiseOracleDB_connectionString')]"
-				},
-				"connectVia": {
-					"referenceName": "PattosPersonalIntegrationRuntime",
-					"type": "IntegrationRuntimeReference"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/integrationRuntimes/PattosPersonalIntegrationRuntime')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Test Execute Sproc')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Stored Procedure1",
-						"type": "SqlServerStoredProcedure",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "7.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"storedProcedureName": "Control.up_MicksTest @Param1 = 'Mick'"
-						},
-						"linkedServiceName": {
-							"referenceName": "ControlDB",
-							"type": "LinkedServiceReference"
-						}
-					}
-				],
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/ControlDB')]"
 			]
 		},
 		{
@@ -590,6 +550,105 @@
 						"type": "Expression"
 					}
 				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/BlobStorage')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/OracleDB_Dataset')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "OracleDB",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"Host": {
+							"value": "@dataset().Host",
+							"type": "Expression"
+						},
+						"Port": {
+							"value": "@dataset().Port",
+							"type": "Expression"
+						},
+						"SID": {
+							"value": "@dataset().SID",
+							"type": "Expression"
+						},
+						"Username": {
+							"value": "@dataset().Username",
+							"type": "Expression"
+						},
+						"Password": {
+							"value": "@dataset().Password",
+							"type": "Expression"
+						}
+					}
+				},
+				"parameters": {
+					"Host": {
+						"type": "string"
+					},
+					"Port": {
+						"type": "string"
+					},
+					"SID": {
+						"type": "string"
+					},
+					"Username": {
+						"type": "string"
+					},
+					"Password": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "OracleTable",
+				"typeProperties": {}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/OracleDB')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ParquetBlobStorage_Dataset')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Parquet format file.",
+				"linkedServiceName": {
+					"referenceName": "BlobStorage",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"FilePath": {
+						"type": "string"
+					},
+					"FileName": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Final Datasets"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@dataset().FileName",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "@dataset().FilePath",
+							"type": "Expression"
+						}
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": []
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/BlobStorage')]"

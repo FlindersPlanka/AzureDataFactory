@@ -27,10 +27,6 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'OracleDB'"
 		},
-		"PASOnPremiseOracleDB_connectionString": {
-			"type": "secureString",
-			"metadata": "Secure string for 'connectionString' of 'PASOnPremiseOracleDB'"
-		},
 		"JsonFile_Dataset_properties_typeProperties_fileName": {
 			"type": "string",
 			"defaultValue": "@dataset().FileName"
@@ -75,11 +71,15 @@
 			"type": "string",
 			"defaultValue": "3"
 		},
-		"Trigger - Reset Processing Framework_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList": {
+		"Trigger - Reset Processing Framework_properties__Process Type 9 - Execute Query in Control Database_parameters_EntityGroupKeyList": {
 			"type": "string",
 			"defaultValue": "6"
 		},
 		"Trigger - Start of Day Processing_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList": {
+			"type": "string",
+			"defaultValue": "5"
+		},
+		"Trigger - Start of Day Processing_properties__Process Type 9 - Execute Query in Control Database_parameters_EntityGroupKeyList": {
 			"type": "string",
 			"defaultValue": "5"
 		},
@@ -124,9 +124,6 @@
 					},
 					"OracleDB_connectionString": {
 						"value": "[parameters('OracleDB_connectionString')]"
-					},
-					"PASOnPremiseOracleDB_connectionString": {
-						"value": "[parameters('PASOnPremiseOracleDB_connectionString')]"
 					},
 					"DataFactoryKeyVault_properties_typeProperties_baseUrl": {
 						"value": "[parameters('DataFactoryKeyVault_properties_typeProperties_baseUrl')]"
@@ -179,11 +176,14 @@
 					"Trigger - Research Now - Source to Data Lake_properties__Process Type 7 - ETL - REST API to Data Lake_parameters_EntityGroupKeyList": {
 						"value": "[parameters('Trigger - Research Now - Source to Data Lake_properties__Process Type 7 - ETL - REST API to Data Lake_parameters_EntityGroupKeyList')]"
 					},
-					"Trigger - Reset Processing Framework_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList": {
-						"value": "[parameters('Trigger - Reset Processing Framework_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList')]"
+					"Trigger - Reset Processing Framework_properties__Process Type 9 - Execute Query in Control Database_parameters_EntityGroupKeyList": {
+						"value": "[parameters('Trigger - Reset Processing Framework_properties__Process Type 9 - Execute Query in Control Database_parameters_EntityGroupKeyList')]"
 					},
 					"Trigger - Start of Day Processing_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList": {
 						"value": "[parameters('Trigger - Start of Day Processing_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList')]"
+					},
+					"Trigger - Start of Day Processing_properties__Process Type 9 - Execute Query in Control Database_parameters_EntityGroupKeyList": {
+						"value": "[parameters('Trigger - Start of Day Processing_properties__Process Type 9 - Execute Query in Control Database_parameters_EntityGroupKeyList')]"
 					}
 				}
 			},
