@@ -138,7 +138,7 @@
 								},
 								"ifFalseActivities": [
 									{
-										"name": "Indicate Failure",
+										"name": "Indicate Failure 2",
 										"type": "SqlServerStoredProcedure",
 										"dependsOn": [],
 										"policy": {
@@ -223,7 +223,7 @@
 							}
 						},
 						{
-							"name": "Indicate Failure",
+							"name": "Indicate Failure 1",
 							"type": "SqlServerStoredProcedure",
 							"dependsOn": [
 								{
