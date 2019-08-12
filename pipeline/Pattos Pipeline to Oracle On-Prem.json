@@ -207,7 +207,7 @@
 							"type": "SqlServerStoredProcedure",
 							"dependsOn": [
 								{
-									"activity": "Import Data",
+									"activity": "Save to History",
 									"dependencyConditions": [
 										"Succeeded"
 									]
@@ -327,6 +327,104 @@
 							"linkedServiceName": {
 								"referenceName": "AzureFunctions",
 								"type": "LinkedServiceReference"
+							}
+						},
+						{
+							"name": "Save to History",
+							"description": "Save to History if required.",
+							"type": "IfCondition",
+							"dependsOn": [
+								{
+									"activity": "Import Data",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"expression": {
+									"value": "@equals(activity('Translate JSON Variables').output.result.SaveToHistory, 'True')",
+									"type": "Expression"
+								},
+								"ifTrueActivities": [
+									{
+										"name": "Add DataDate and Save to History",
+										"type": "DatabricksNotebook",
+										"dependsOn": [
+											{
+												"activity": "Lookup the Data Date",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"policy": {
+											"timeout": "7.00:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"notebookPath": "/Analytics/_Add DataDate and Save to History",
+											"baseParameters": {
+												"Scope": {
+													"value": "@activity('Translate JSON Variables').output.result.Scope",
+													"type": "Expression"
+												},
+												"SourceSystem": {
+													"value": "@activity('Translate JSON Variables').output.result.SourceSystem",
+													"type": "Expression"
+												},
+												"Entity": {
+													"value": "@activity('Translate JSON Variables').output.result.EntityName",
+													"type": "Expression"
+												},
+												"DataDate": {
+													"value": "@string(activity('Lookup the Data Date').output.firstRow.DataDate)",
+													"type": "Expression"
+												},
+												"FileFormat": {
+													"value": "@activity('Translate JSON Variables').output.result.FileFormat",
+													"type": "Expression"
+												}
+											}
+										},
+										"linkedServiceName": {
+											"referenceName": "AzureDatabricks",
+											"type": "LinkedServiceReference"
+										}
+									},
+									{
+										"name": "Lookup the Data Date",
+										"description": "Read the Control table that specifies which date this data pertains to.",
+										"type": "Lookup",
+										"dependsOn": [],
+										"policy": {
+											"timeout": "7.00:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"source": {
+												"type": "AzureSqlSource",
+												"sqlReaderQuery": {
+													"value": "@activity('Translate JSON Variables').output.result.DataDateQuery",
+													"type": "Expression"
+												}
+											},
+											"dataset": {
+												"referenceName": "ControlDB_Dataset",
+												"type": "DatasetReference"
+											}
+										}
+									}
+								]
 							}
 						}
 					]
