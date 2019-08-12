@@ -13,6 +13,15 @@
 				"parameters": {
 					"EntityGroupKeyList": "5"
 				}
+			},
+			{
+				"pipelineReference": {
+					"referenceName": "_Process Type 9 - Execute Query in Control Database",
+					"type": "PipelineReference"
+				},
+				"parameters": {
+					"EntityGroupKeyList": "5"
+				}
 			}
 		],
 		"type": "ScheduleTrigger",
