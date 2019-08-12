@@ -23,6 +23,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'password' of 'FlindersUniFileServer'"
 		},
+		"OracleDB_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'OracleDB'"
+		},
 		"PASOnPremiseOracleDB_connectionString": {
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'PASOnPremiseOracleDB'"
@@ -59,6 +63,14 @@
 			"type": "string",
 			"defaultValue": "3"
 		},
+		"Trigger - Determine Changeset_properties__Process Type 2 - Determine Changeset in Data Lake_parameters_EntityGroupKeyList": {
+			"type": "string",
+			"defaultValue": "3"
+		},
+		"Trigger - Process Changeset into Delta Table_properties__Process Type 3 - Apply Changeset to Delta Lake_parameters_EntityGroupKeyList": {
+			"type": "string",
+			"defaultValue": "3"
+		},
 		"Trigger - Research Now - Source to Data Lake_properties__Process Type 7 - ETL - REST API to Data Lake_parameters_EntityGroupKeyList": {
 			"type": "string",
 			"defaultValue": "3"
@@ -70,14 +82,6 @@
 		"Trigger - Start of Day Processing_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList": {
 			"type": "string",
 			"defaultValue": "5"
-		},
-		"Trigger - Determine Changeset_properties__Process Type 2 - Determine Changeset in Data Lake_parameters_EntityGroupKeyList": {
-			"type": "string",
-			"defaultValue": "3"
-		},
-		"Trigger - Process Changeset into Delta Table_properties__Process Type 3 - Apply Changeset to Delta Lake_parameters_EntityGroupKeyList": {
-			"type": "string",
-			"defaultValue": "3"
 		},
 		"containerUri": {
 			"type": "string",
@@ -117,6 +121,9 @@
 					},
 					"DataWarehouseDB_connectionString": {
 						"value": "[parameters('DataWarehouseDB_connectionString')]"
+					},
+					"OracleDB_connectionString": {
+						"value": "[parameters('OracleDB_connectionString')]"
 					},
 					"PASOnPremiseOracleDB_connectionString": {
 						"value": "[parameters('PASOnPremiseOracleDB_connectionString')]"
@@ -163,6 +170,12 @@
 					"Trigger - Deconstruct JSON to Table_properties__Process Type 8 - Deconstruct JSON into Tabular Form in Data Lake_parameters_EntityGroupKeyList": {
 						"value": "[parameters('Trigger - Deconstruct JSON to Table_properties__Process Type 8 - Deconstruct JSON into Tabular Form in Data Lake_parameters_EntityGroupKeyList')]"
 					},
+					"Trigger - Determine Changeset_properties__Process Type 2 - Determine Changeset in Data Lake_parameters_EntityGroupKeyList": {
+						"value": "[parameters('Trigger - Determine Changeset_properties__Process Type 2 - Determine Changeset in Data Lake_parameters_EntityGroupKeyList')]"
+					},
+					"Trigger - Process Changeset into Delta Table_properties__Process Type 3 - Apply Changeset to Delta Lake_parameters_EntityGroupKeyList": {
+						"value": "[parameters('Trigger - Process Changeset into Delta Table_properties__Process Type 3 - Apply Changeset to Delta Lake_parameters_EntityGroupKeyList')]"
+					},
 					"Trigger - Research Now - Source to Data Lake_properties__Process Type 7 - ETL - REST API to Data Lake_parameters_EntityGroupKeyList": {
 						"value": "[parameters('Trigger - Research Now - Source to Data Lake_properties__Process Type 7 - ETL - REST API to Data Lake_parameters_EntityGroupKeyList')]"
 					},
@@ -171,12 +184,6 @@
 					},
 					"Trigger - Start of Day Processing_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList": {
 						"value": "[parameters('Trigger - Start of Day Processing_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList')]"
-					},
-					"Trigger - Determine Changeset_properties__Process Type 2 - Determine Changeset in Data Lake_parameters_EntityGroupKeyList": {
-						"value": "[parameters('Trigger - Determine Changeset_properties__Process Type 2 - Determine Changeset in Data Lake_parameters_EntityGroupKeyList')]"
-					},
-					"Trigger - Process Changeset into Delta Table_properties__Process Type 3 - Apply Changeset to Delta Lake_parameters_EntityGroupKeyList": {
-						"value": "[parameters('Trigger - Process Changeset into Delta Table_properties__Process Type 3 - Apply Changeset to Delta Lake_parameters_EntityGroupKeyList')]"
 					}
 				}
 			},

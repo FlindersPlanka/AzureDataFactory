@@ -11,6 +11,14 @@
 			"type": "string",
 			"defaultValue": "3"
 		},
+		"Trigger - Determine Changeset_properties__Process Type 2 - Determine Changeset in Data Lake_parameters_EntityGroupKeyList": {
+			"type": "string",
+			"defaultValue": "3"
+		},
+		"Trigger - Process Changeset into Delta Table_properties__Process Type 3 - Apply Changeset to Delta Lake_parameters_EntityGroupKeyList": {
+			"type": "string",
+			"defaultValue": "3"
+		},
 		"Trigger - Research Now - Source to Data Lake_properties__Process Type 7 - ETL - REST API to Data Lake_parameters_EntityGroupKeyList": {
 			"type": "string",
 			"defaultValue": "3"
@@ -22,20 +30,70 @@
 		"Trigger - Start of Day Processing_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList": {
 			"type": "string",
 			"defaultValue": "5"
-		},
-		"Trigger - Determine Changeset_properties__Process Type 2 - Determine Changeset in Data Lake_parameters_EntityGroupKeyList": {
-			"type": "string",
-			"defaultValue": "3"
-		},
-		"Trigger - Process Changeset into Delta Table_properties__Process Type 3 - Apply Changeset to Delta Lake_parameters_EntityGroupKeyList": {
-			"type": "string",
-			"defaultValue": "3"
 		}
 	},
 	"variables": {
 		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
 	},
 	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/OracleDB_Dataset')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "OracleDB",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "OracleTable",
+				"typeProperties": {
+					"tableName": "\"APEX_030200\".\"APEX_APPLICATIONS\""
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ParquetBlobStorage_Dataset')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Parquet format file.",
+				"linkedServiceName": {
+					"referenceName": "BlobStorage",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"FilePath": {
+						"type": "string"
+					},
+					"FileName": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Final Datasets"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@dataset().FileName",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "@dataset().FilePath",
+							"type": "Expression"
+						}
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
 		{
 			"name": "[concat(parameters('factoryName'), '/Pattos Pipeline to Oracle On-Prem')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
@@ -162,69 +220,11 @@
 									}
 								},
 								{
-									"name": "If Extract Control Applies",
-									"description": "If the Variable ExtractControlQuery is not blank, execute this query to return a value for Extract Control.  This is used only in incremental/changeset type extracts.",
-									"type": "IfCondition",
-									"dependsOn": [
-										{
-											"activity": "Translate JSON Variables",
-											"dependencyConditions": [
-												"Succeeded"
-											]
-										}
-									],
-									"userProperties": [],
-									"typeProperties": {
-										"expression": {
-											"value": "@not(equals(activity('Translate JSON Variables').output.result.ExtractControlQuery, '')) ",
-											"type": "Expression"
-										},
-										"ifTrueActivities": [
-											{
-												"name": "Lookup the Next Extract Control",
-												"type": "Lookup",
-												"dependsOn": [],
-												"policy": {
-													"timeout": "7.00:00:00",
-													"retry": 0,
-													"retryIntervalInSeconds": 30,
-													"secureOutput": false,
-													"secureInput": false
-												},
-												"userProperties": [],
-												"typeProperties": {
-													"source": {
-														"type": "AzureSqlSource",
-														"sqlReaderQuery": {
-															"value": "@activity('Translate JSON Variables').output.result.ExtractControlQuery",
-															"type": "Expression"
-														}
-													},
-													"dataset": {
-														"referenceName": "AzureSqlDB_Dataset",
-														"type": "DatasetReference",
-														"parameters": {
-															"DatabaseServerName": {
-																"value": "@activity('Translate JSON Variables').output.result.DatabaseServerName",
-																"type": "Expression"
-															},
-															"DatabaseName": {
-																"value": "@activity('Translate JSON Variables').output.result.DatabaseName",
-																"type": "Expression"
-															}
-														}
-													}
-												}
-											}
-										]
-									}
-								},
-								{
 									"name": "Import Data",
 									"type": "Copy",
 									"dependsOn": [
 										{
-											"activity": "If Extract Control Applies",
+											"activity": "Translate JSON Variables",
 											"dependencyConditions": [
 												"Succeeded"
 											]
@@ -403,68 +403,6 @@
 										"referenceName": "AzureFunctions",
 										"type": "LinkedServiceReference"
 									}
-								},
-								{
-									"name": "If Incremental Set Next Extract Control",
-									"type": "IfCondition",
-									"dependsOn": [
-										{
-											"activity": "Indicate Success",
-											"dependencyConditions": [
-												"Succeeded"
-											]
-										}
-									],
-									"userProperties": [],
-									"typeProperties": {
-										"expression": {
-											"value": "@not(equals(activity('Translate JSON Variables').output.result.ExtractControlQuery, '')) ",
-											"type": "Expression"
-										},
-										"ifTrueActivities": [
-											{
-												"name": "Set Next Extract Control Value",
-												"description": "Update the ExtractControl for this Process Entity",
-												"type": "SqlServerStoredProcedure",
-												"dependsOn": [],
-												"policy": {
-													"timeout": "7.00:00:00",
-													"retry": 0,
-													"retryIntervalInSeconds": 30,
-													"secureOutput": false,
-													"secureInput": false
-												},
-												"userProperties": [],
-												"typeProperties": {
-													"storedProcedureName": "[[Process].[up_SetOverrideVariable]",
-													"storedProcedureParameters": {
-														"EntityKey": {
-															"value": {
-																"value": "@item().EntityKey",
-																"type": "Expression"
-															},
-															"type": "Int32"
-														},
-														"VariableName": {
-															"value": "$.ExtractControl",
-															"type": "String"
-														},
-														"VariableValue": {
-															"value": {
-																"value": "@string(activity('Lookup the Next Extract Control').output.firstRow.ExtractControl)",
-																"type": "Expression"
-															},
-															"type": "String"
-														}
-													}
-												},
-												"linkedServiceName": {
-													"referenceName": "ControlDB",
-													"type": "LinkedServiceReference"
-												}
-											}
-										]
-									}
 								}
 							]
 						}
@@ -487,7 +425,10 @@
 				},
 				"annotations": []
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/OracleDB_Dataset')]",
+				"[concat(variables('factoryId'), '/datasets/ParquetBlobStorage_Dataset')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/_Process Type 1 - Azure SQL DB to Blob')]",
@@ -952,7 +893,9 @@
 				},
 				"annotations": []
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ParquetBlobStorage_Dataset')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/_Process Type 2 - Determine Changeset in Data Lake')]",
@@ -2104,7 +2047,9 @@
 				},
 				"annotations": []
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ParquetBlobStorage_Dataset')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/_Process Type 5 - Execute Sproc in Data Warehouse Database')]",
@@ -2874,7 +2819,9 @@
 				},
 				"annotations": []
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ParquetBlobStorage_Dataset')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/_Process Type 7 - ETL - REST API to Data Lake')]",
@@ -5137,6 +5084,104 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/Trigger - Determine Changeset')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Determine the Changeset between the Current data and the most recent Previous data.",
+				"annotations": [],
+				"runtimeState": "Started",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "_Process Type 2 - Determine Changeset in Data Lake",
+							"type": "PipelineReference"
+						},
+						"parameters": {
+							"EntityGroupKeyList": "[parameters('Trigger - Determine Changeset_properties__Process Type 2 - Determine Changeset in Data Lake_parameters_EntityGroupKeyList')]"
+						}
+					}
+				],
+				"type": "ScheduleTrigger",
+				"typeProperties": {
+					"recurrence": {
+						"frequency": "Day",
+						"interval": 1,
+						"startTime": "2019-08-09T07:37:00.000Z",
+						"timeZone": "UTC",
+						"schedule": {
+							"minutes": [
+								0,
+								15,
+								30,
+								45
+							],
+							"hours": [
+								14,
+								15,
+								16,
+								17,
+								18,
+								19
+							]
+						}
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/_Process Type 2 - Determine Changeset in Data Lake')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Trigger - Process Changeset into Delta Table')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Process the Changeset into the Delta Table in the Delta Lake.",
+				"annotations": [],
+				"runtimeState": "Started",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "_Process Type 3 - Apply Changeset to Delta Lake",
+							"type": "PipelineReference"
+						},
+						"parameters": {
+							"EntityGroupKeyList": "[parameters('Trigger - Process Changeset into Delta Table_properties__Process Type 3 - Apply Changeset to Delta Lake_parameters_EntityGroupKeyList')]"
+						}
+					}
+				],
+				"type": "ScheduleTrigger",
+				"typeProperties": {
+					"recurrence": {
+						"frequency": "Day",
+						"interval": 1,
+						"startTime": "2019-08-09T08:15:00.000Z",
+						"timeZone": "UTC",
+						"schedule": {
+							"minutes": [
+								0,
+								15,
+								30,
+								45
+							],
+							"hours": [
+								14,
+								15,
+								16,
+								17,
+								18,
+								19
+							]
+						}
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/_Process Type 3 - Apply Changeset to Delta Lake')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/Trigger - Research Now - Source to Data Lake')]",
 			"type": "Microsoft.DataFactory/factories/triggers",
 			"apiVersion": "2018-06-01",
@@ -5269,104 +5314,6 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/pipelines/_Process Type 9 - Execute Sproc in Control Database')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Trigger - Determine Changeset')]",
-			"type": "Microsoft.DataFactory/factories/triggers",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "Determine the Changeset between the Current data and the most recent Previous data.",
-				"annotations": [],
-				"runtimeState": "Started",
-				"pipelines": [
-					{
-						"pipelineReference": {
-							"referenceName": "_Process Type 2 - Determine Changeset in Data Lake",
-							"type": "PipelineReference"
-						},
-						"parameters": {
-							"EntityGroupKeyList": "[parameters('Trigger - Determine Changeset_properties__Process Type 2 - Determine Changeset in Data Lake_parameters_EntityGroupKeyList')]"
-						}
-					}
-				],
-				"type": "ScheduleTrigger",
-				"typeProperties": {
-					"recurrence": {
-						"frequency": "Day",
-						"interval": 1,
-						"startTime": "2019-08-09T07:37:00.000Z",
-						"timeZone": "UTC",
-						"schedule": {
-							"minutes": [
-								0,
-								15,
-								30,
-								45
-							],
-							"hours": [
-								14,
-								15,
-								16,
-								17,
-								18,
-								19
-							]
-						}
-					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/_Process Type 2 - Determine Changeset in Data Lake')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Trigger - Process Changeset into Delta Table')]",
-			"type": "Microsoft.DataFactory/factories/triggers",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "Process the Changeset into the Delta Table in the Delta Lake.",
-				"annotations": [],
-				"runtimeState": "Started",
-				"pipelines": [
-					{
-						"pipelineReference": {
-							"referenceName": "_Process Type 3 - Apply Changeset to Delta Lake",
-							"type": "PipelineReference"
-						},
-						"parameters": {
-							"EntityGroupKeyList": "[parameters('Trigger - Process Changeset into Delta Table_properties__Process Type 3 - Apply Changeset to Delta Lake_parameters_EntityGroupKeyList')]"
-						}
-					}
-				],
-				"type": "ScheduleTrigger",
-				"typeProperties": {
-					"recurrence": {
-						"frequency": "Day",
-						"interval": 1,
-						"startTime": "2019-08-09T08:15:00.000Z",
-						"timeZone": "UTC",
-						"schedule": {
-							"minutes": [
-								0,
-								15,
-								30,
-								45
-							],
-							"hours": [
-								14,
-								15,
-								16,
-								17,
-								18,
-								19
-							]
-						}
-					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/_Process Type 3 - Apply Changeset to Delta Lake')]"
 			]
 		}
 	]
