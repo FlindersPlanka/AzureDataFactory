@@ -6,6 +6,9 @@
 			"type": "LinkedServiceReference"
 		},
 		"annotations": [],
-		"type": "OracleTable"
+		"type": "OracleTable",
+		"typeProperties": {
+			"tableName": "\"APEX_030200\".\"APEX_APPLICATIONS\""
+		}
 	}
 }
