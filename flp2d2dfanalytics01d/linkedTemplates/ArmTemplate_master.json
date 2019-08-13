@@ -27,6 +27,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'OracleDB'"
 		},
+		"SqlServerDB_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'SqlServerDB'"
+		},
 		"JsonFile_Dataset_properties_typeProperties_fileName": {
 			"type": "string",
 			"defaultValue": "@dataset().FileName"
@@ -125,6 +129,9 @@
 					"OracleDB_connectionString": {
 						"value": "[parameters('OracleDB_connectionString')]"
 					},
+					"SqlServerDB_connectionString": {
+						"value": "[parameters('SqlServerDB_connectionString')]"
+					},
 					"DataFactoryKeyVault_properties_typeProperties_baseUrl": {
 						"value": "[parameters('DataFactoryKeyVault_properties_typeProperties_baseUrl')]"
 					},
@@ -178,6 +185,26 @@
 					},
 					"Trigger - Reset Processing Framework_properties__Process Type 9 - Execute Query in Control Database_parameters_EntityGroupKeyList": {
 						"value": "[parameters('Trigger - Reset Processing Framework_properties__Process Type 9 - Execute Query in Control Database_parameters_EntityGroupKeyList')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'ArmTemplate_0')]"
+			]
+		},
+		{
+			"name": "ArmTemplate_2",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_2.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
 					},
 					"Trigger - Start of Day Processing_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList": {
 						"value": "[parameters('Trigger - Start of Day Processing_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList')]"
@@ -188,7 +215,7 @@
 				}
 			},
 			"dependsOn": [
-				"[resourceId('Microsoft.Resources/deployments', 'ArmTemplate_0')]"
+				"[resourceId('Microsoft.Resources/deployments', 'ArmTemplate_1')]"
 			]
 		}
 	]

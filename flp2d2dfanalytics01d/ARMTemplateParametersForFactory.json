@@ -20,6 +20,9 @@
 		"OracleDB_connectionString": {
 			"value": ""
 		},
+		"SqlServerDB_connectionString": {
+			"value": ""
+		},
 		"JsonFile_Dataset_properties_typeProperties_fileName": {
 			"value": "@dataset().FileName"
 		},
