@@ -1,0 +1,12 @@
+{
+	"name": "SqlServerDB_Dataset",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "SqlServerDB",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "SqlServerTable",
+		"schema": []
+	}
+}
