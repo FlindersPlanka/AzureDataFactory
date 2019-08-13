@@ -141,7 +141,11 @@
 							"userProperties": [],
 							"typeProperties": {
 								"source": {
-									"type": "SqlServerSource"
+									"type": "SqlServerSource",
+									"sqlReaderQuery": {
+										"value": "@activity('Translate JSON Variables').output.result.ExtractQuery",
+										"type": "Expression"
+									}
 								},
 								"sink": {
 									"type": "ParquetSink",
