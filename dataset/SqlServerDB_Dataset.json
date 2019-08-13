@@ -3,7 +3,39 @@
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "SqlServerDB",
-			"type": "LinkedServiceReference"
+			"type": "LinkedServiceReference",
+			"parameters": {
+				"DatabaseServerName": {
+					"value": "@dataset().DatabaseServerName",
+					"type": "Expression"
+				},
+				"DatabaseName": {
+					"value": "@dataset().DatabaseName",
+					"type": "Expression"
+				},
+				"Username": {
+					"value": "@dataset().Username",
+					"type": "Expression"
+				},
+				"Password": {
+					"value": "@dataset().Password",
+					"type": "Expression"
+				}
+			}
+		},
+		"parameters": {
+			"DatabaseServerName": {
+				"type": "string"
+			},
+			"DatabaseName": {
+				"type": "string"
+			},
+			"Username": {
+				"type": "string"
+			},
+			"Password": {
+				"type": "string"
+			}
 		},
 		"annotations": [],
 		"type": "SqlServerTable",
