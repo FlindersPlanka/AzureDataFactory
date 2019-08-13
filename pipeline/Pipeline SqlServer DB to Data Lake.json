@@ -141,12 +141,7 @@
 							"userProperties": [],
 							"typeProperties": {
 								"source": {
-									"type": "OracleSource",
-									"oracleReaderQuery": {
-										"value": "@activity('Translate JSON Variables').output.result.ExtractQuery",
-										"type": "Expression"
-									},
-									"partitionOption": "None"
+									"type": "SqlServerSource"
 								},
 								"sink": {
 									"type": "ParquetSink",
@@ -159,19 +154,15 @@
 							},
 							"inputs": [
 								{
-									"referenceName": "OracleDB_Dataset",
+									"referenceName": "SqlServerDB_Dataset",
 									"type": "DatasetReference",
 									"parameters": {
-										"Host": {
-											"value": "@activity('Translate JSON Variables').output.result.Host",
+										"DatabaseServerName": {
+											"value": "@activity('Translate JSON Variables').output.result.DatabaseServerName",
 											"type": "Expression"
 										},
-										"Port": {
-											"value": "@activity('Translate JSON Variables').output.result.Port",
-											"type": "Expression"
-										},
-										"SID": {
-											"value": "@activity('Translate JSON Variables').output.result.SID",
+										"DatabaseName": {
+											"value": "@activity('Translate JSON Variables').output.result.DatabaseName",
 											"type": "Expression"
 										},
 										"Username": {
