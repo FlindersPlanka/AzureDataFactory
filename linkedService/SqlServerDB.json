@@ -2,11 +2,28 @@
 	"name": "SqlServerDB",
 	"type": "Microsoft.DataFactory/factories/linkedservices",
 	"properties": {
+		"parameters": {
+			"DatabaseServerName": {
+				"type": "string"
+			},
+			"DatabaseName": {
+				"type": "string"
+			},
+			"Username": {
+				"type": "string"
+			},
+			"Password": {
+				"type": "string"
+			},
+			"AuthenticationType": {
+				"type": "string"
+			}
+		},
 		"annotations": [],
 		"type": "SqlServer",
 		"typeProperties": {
 			"connectionString": "integrated security=False;data source=flisqlrpl01.t1cloud.com;initial catalog=a99727ef-dbf7-49d9-8520-29155b93fd7e-SM;user id=BA_RO_PRD_SM",
-			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiJkZDAxYTM1NC1jMGQzLTQzOGUtYTQxZC05YmEzODI5ZjFmY2UiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
+			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiIzNDA3ODIyNy03ZGMwLTQ5YjctYTdmZi00NWI4NzIxNWNjZDgiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
 		},
 		"connectVia": {
 			"referenceName": "PattosPersonalIntegrationRuntime",
