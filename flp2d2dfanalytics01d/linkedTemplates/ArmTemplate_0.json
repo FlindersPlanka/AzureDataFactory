@@ -65,6 +65,27 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/MicksTestPipeline')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Testing for Source Control",
+				"activities": [
+					{
+						"name": "Wait1",
+						"type": "Wait",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 1
+						}
+					}
+				],
+				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/DataFactoryKeyVault')]",
 			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
@@ -590,62 +611,6 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/BlobStorage')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/OracleDB_Dataset')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "OracleDB",
-					"type": "LinkedServiceReference",
-					"parameters": {
-						"Host": {
-							"value": "@dataset().Host",
-							"type": "Expression"
-						},
-						"Port": {
-							"value": "@dataset().Port",
-							"type": "Expression"
-						},
-						"SID": {
-							"value": "@dataset().SID",
-							"type": "Expression"
-						},
-						"Username": {
-							"value": "@dataset().Username",
-							"type": "Expression"
-						},
-						"Password": {
-							"value": "@dataset().Password",
-							"type": "Expression"
-						}
-					}
-				},
-				"parameters": {
-					"Host": {
-						"type": "string"
-					},
-					"Port": {
-						"type": "string"
-					},
-					"SID": {
-						"type": "string"
-					},
-					"Username": {
-						"type": "string"
-					},
-					"Password": {
-						"type": "string"
-					}
-				},
-				"annotations": [],
-				"type": "OracleTable",
-				"typeProperties": {}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/OracleDB')]"
 			]
 		}
 	]

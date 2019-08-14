@@ -93,6 +93,27 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/MicksTestPipeline')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Testing for Source Control",
+				"activities": [
+					{
+						"name": "Wait1",
+						"type": "Wait",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 1
+						}
+					}
+				],
+				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/Pattos Pipeline to Oracle On-Prem')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -598,6 +619,512 @@
 				"[concat(variables('factoryId'), '/datasets/ControlDB_Dataset')]",
 				"[concat(variables('factoryId'), '/linkedServices/ControlDB')]",
 				"[concat(variables('factoryId'), '/datasets/OracleDB_Dataset')]",
+				"[concat(variables('factoryId'), '/datasets/ParquetBlobStorage_Dataset')]",
+				"[concat(variables('factoryId'), '/linkedServices/AzureFunctions')]",
+				"[concat(variables('factoryId'), '/linkedServices/AzureDatabricks')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Pipeline SqlServer DB to Data Lake')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Extract data from an SQL DB into parquet files in Azure Blob Storage (ADLS Gen 2).\n\nUse a For Each loop operating in parallel mode.\n\nFor debugging purposes, you can simulate \n JSON array with:\n \n[{\"ProductNumber\" : \"HL-U509\"},{\"ProductNumber\" : \"FR-R92R-62\"}]",
+				"activities": [
+					{
+						"name": "Get Entities to Process",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderStoredProcedureName": "[[Process].[up_GetEntitiesToProcess]",
+								"storedProcedureParameters": {
+									"BatchSize": {
+										"type": "Int32",
+										"value": "999999"
+									},
+									"EntityGroupKeyList": {
+										"type": "String",
+										"value": {
+											"value": "@pipeline().parameters.EntityGroupKeyList",
+											"type": "Expression"
+										}
+									},
+									"ProcessTypeKey": {
+										"type": "Int32",
+										"value": {
+											"value": "@variables('ProcessTypeKey')",
+											"type": "Expression"
+										}
+									}
+								}
+							},
+							"dataset": {
+								"referenceName": "ControlDB_Dataset",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"firstRowOnly": false
+						}
+					},
+					{
+						"name": "Filter out Invalid Entities",
+						"description": "If the EntityKey < 0, filter out.  An EntityKey of -1 is used to indicate there are no Entities to Process.",
+						"type": "Filter",
+						"dependsOn": [
+							{
+								"activity": "Get Entities to Process",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Get Entities to Process').output.value",
+								"type": "Expression"
+							},
+							"condition": {
+								"value": "@greater(item().EntityKey, 0)",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "Process Entities",
+						"description": "Process each individual Entity.",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "Filter out Invalid Entities",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Filter out Invalid Entities').output.value",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "Set Process Start Time",
+									"description": "Set the LastRunStartTime for this Entity",
+									"type": "SqlServerStoredProcedure",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"storedProcedureName": "[[Process].[up_UpdateEntityProcessStartTime]",
+										"storedProcedureParameters": {
+											"EntityKey": {
+												"value": {
+													"value": "@item().EntityKey",
+													"type": "Expression"
+												},
+												"type": "Int32"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "ControlDB",
+										"type": "LinkedServiceReference"
+									}
+								},
+								{
+									"name": "Import Data",
+									"type": "Copy",
+									"dependsOn": [
+										{
+											"activity": "Translate JSON Variables",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "SqlServerSource",
+											"sqlReaderQuery": {
+												"value": "@activity('Translate JSON Variables').output.result.ExtractQuery",
+												"type": "Expression"
+											}
+										},
+										"sink": {
+											"type": "ParquetSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											}
+										},
+										"enableStaging": false,
+										"dataIntegrationUnits": 0
+									},
+									"inputs": [
+										{
+											"referenceName": "SqlServerDB_Dataset",
+											"type": "DatasetReference",
+											"parameters": {
+												"DatabaseServerName": {
+													"value": "@activity('Translate JSON Variables').output.result.DatabaseServerName",
+													"type": "Expression"
+												},
+												"DatabaseName": {
+													"value": "@activity('Translate JSON Variables').output.result.DatabaseName",
+													"type": "Expression"
+												},
+												"Username": {
+													"value": "@activity('Translate JSON Variables').output.result.Username",
+													"type": "Expression"
+												},
+												"Password": {
+													"value": "@activity('Translate JSON Variables').output.result.Password",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "ParquetBlobStorage_Dataset",
+											"type": "DatasetReference",
+											"parameters": {
+												"FilePath": {
+													"value": "@{activity('Translate JSON Variables').output.result.Scope}/@{activity('Translate JSON Variables').output.result.SourceSystem}/@{activity('Translate JSON Variables').output.result.EntityName}/Current",
+													"type": "Expression"
+												},
+												"FileName": {
+													"value": "@{activity('Translate JSON Variables').output.result.EntityName}.parquet",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								},
+								{
+									"name": "Indicate Success",
+									"type": "SqlServerStoredProcedure",
+									"dependsOn": [
+										{
+											"activity": "Save to History",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"storedProcedureName": "[[Process].[up_UpdateEntityDiagnostics]",
+										"storedProcedureParameters": {
+											"EntityKey": {
+												"value": {
+													"value": "@item().EntityKey",
+													"type": "Expression"
+												},
+												"type": "Int32"
+											},
+											"Result": {
+												"value": "Success",
+												"type": "String"
+											},
+											"ExecutionMessage": {
+												"value": {
+													"value": "@{activity('Translate JSON Variables').output.result.SourceSystem}.@{activity('Translate JSON Variables').output.result.EntityName} - Rows read: @{activity('Import Data').output.rowsRead} | Rows written: @{activity('Import Data').output.rowsCopied}",
+													"type": "Expression"
+												},
+												"type": "String"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "ControlDB",
+										"type": "LinkedServiceReference"
+									}
+								},
+								{
+									"name": "Indicate Failure",
+									"type": "SqlServerStoredProcedure",
+									"dependsOn": [
+										{
+											"activity": "Import Data",
+											"dependencyConditions": [
+												"Failed"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"storedProcedureName": "[[Process].[up_UpdateEntityDiagnostics]",
+										"storedProcedureParameters": {
+											"EntityKey": {
+												"value": {
+													"value": "@item().EntityKey",
+													"type": "Expression"
+												},
+												"type": "Int32"
+											},
+											"ExecutionMessage": {
+												"value": {
+													"value": "Error in Data Factory '@{pipeline().DataFactory}' | Pipeline '@{pipeline().Pipeline}' | Entity '@{activity('Translate JSON Variables').output.result.SourceSystem}.@{activity('Translate JSON Variables').output.result.EntityName}' | @{activity('Import Data').output.errors[0].Message}",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"Result": {
+												"value": "Failure",
+												"type": "String"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "ControlDB",
+										"type": "LinkedServiceReference"
+									}
+								},
+								{
+									"name": "Translate JSON Variables",
+									"description": "Accept four parameters, VariablesJSON, OverrideVariablesJSON, ConfigurationJSON and DefaultsJSON and translate into a recordset where the columns are a representation of the nodes in the resultant JSON.",
+									"type": "AzureFunctionActivity",
+									"dependsOn": [
+										{
+											"activity": "Set Process Start Time",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"functionName": "TranslateVariables",
+										"method": "POST",
+										"headers": {},
+										"body": {
+											"value": "@item()",
+											"type": "Expression"
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "AzureFunctions",
+										"type": "LinkedServiceReference"
+									}
+								},
+								{
+									"name": "Save to History",
+									"description": "Save to History if required.",
+									"type": "IfCondition",
+									"dependsOn": [
+										{
+											"activity": "Import Data",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"expression": {
+											"value": "@equals(activity('Translate JSON Variables').output.result.SaveToHistory, 'True')",
+											"type": "Expression"
+										},
+										"ifTrueActivities": [
+											{
+												"name": "Add DataDate and Save to History",
+												"type": "DatabricksNotebook",
+												"dependsOn": [
+													{
+														"activity": "Lookup the Data Date",
+														"dependencyConditions": [
+															"Succeeded"
+														]
+													}
+												],
+												"policy": {
+													"timeout": "7.00:00:00",
+													"retry": 0,
+													"retryIntervalInSeconds": 30,
+													"secureOutput": false,
+													"secureInput": false
+												},
+												"userProperties": [],
+												"typeProperties": {
+													"notebookPath": "/Analytics/_Add DataDate and Save to History",
+													"baseParameters": {
+														"Scope": {
+															"value": "@activity('Translate JSON Variables').output.result.Scope",
+															"type": "Expression"
+														},
+														"SourceSystem": {
+															"value": "@activity('Translate JSON Variables').output.result.SourceSystem",
+															"type": "Expression"
+														},
+														"Entity": {
+															"value": "@activity('Translate JSON Variables').output.result.EntityName",
+															"type": "Expression"
+														},
+														"DataDate": {
+															"value": "@string(activity('Lookup the Data Date').output.firstRow.DataDate)",
+															"type": "Expression"
+														},
+														"FileFormat": {
+															"value": "@activity('Translate JSON Variables').output.result.FileFormat",
+															"type": "Expression"
+														}
+													}
+												},
+												"linkedServiceName": {
+													"referenceName": "AzureDatabricks",
+													"type": "LinkedServiceReference"
+												}
+											},
+											{
+												"name": "Lookup the Data Date",
+												"description": "Read the Control table that specifies which date this data pertains to.",
+												"type": "Lookup",
+												"dependsOn": [],
+												"policy": {
+													"timeout": "7.00:00:00",
+													"retry": 0,
+													"retryIntervalInSeconds": 30,
+													"secureOutput": false,
+													"secureInput": false
+												},
+												"userProperties": [],
+												"typeProperties": {
+													"source": {
+														"type": "AzureSqlSource",
+														"sqlReaderQuery": {
+															"value": "@activity('Translate JSON Variables').output.result.DataDateQuery",
+															"type": "Expression"
+														}
+													},
+													"dataset": {
+														"referenceName": "ControlDB_Dataset",
+														"type": "DatasetReference",
+														"parameters": {}
+													}
+												}
+											}
+										]
+									}
+								},
+								{
+									"name": "Indicate Failure 2",
+									"type": "SqlServerStoredProcedure",
+									"dependsOn": [
+										{
+											"activity": "Save to History",
+											"dependencyConditions": [
+												"Failed"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"storedProcedureName": "[[Process].[up_UpdateEntityDiagnostics]",
+										"storedProcedureParameters": {
+											"EntityKey": {
+												"value": {
+													"value": "@item().EntityKey",
+													"type": "Expression"
+												},
+												"type": "Int32"
+											},
+											"ExecutionMessage": {
+												"value": {
+													"value": "Error in Data Factory '@{pipeline().DataFactory}' | Pipeline '@{pipeline().Pipeline}' | Entity '@{activity('Translate JSON Variables').output.result.SourceSystem}.@{activity('Translate JSON Variables').output.result.EntityName}' | @{activity('Save to History').errors[0].Message}",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"Result": {
+												"value": "Failure",
+												"type": "String"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "ControlDB",
+										"type": "LinkedServiceReference"
+									}
+								}
+							]
+						}
+					}
+				],
+				"parameters": {
+					"EntityGroupKeyList": {
+						"type": "String",
+						"defaultValue": "8"
+					}
+				},
+				"variables": {
+					"ProcessTypeKey": {
+						"type": "String",
+						"defaultValue": "11"
+					}
+				},
+				"folder": {
+					"name": "Experimentation"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ControlDB_Dataset')]",
+				"[concat(variables('factoryId'), '/linkedServices/ControlDB')]",
+				"[concat(variables('factoryId'), '/datasets/SqlServerDB_Dataset')]",
 				"[concat(variables('factoryId'), '/datasets/ParquetBlobStorage_Dataset')]",
 				"[concat(variables('factoryId'), '/linkedServices/AzureFunctions')]",
 				"[concat(variables('factoryId'), '/linkedServices/AzureDatabricks')]"
@@ -5962,6 +6489,56 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/SqlServerDB_Dataset')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "SqlServerDB",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"DatabaseServerName": {
+							"value": "@dataset().DatabaseServerName",
+							"type": "Expression"
+						},
+						"DatabaseName": {
+							"value": "@dataset().DatabaseName",
+							"type": "Expression"
+						},
+						"Username": {
+							"value": "@dataset().Username",
+							"type": "Expression"
+						},
+						"Password": {
+							"value": "@dataset().Password",
+							"type": "Expression"
+						}
+					}
+				},
+				"parameters": {
+					"DatabaseServerName": {
+						"type": "string"
+					},
+					"DatabaseName": {
+						"type": "string"
+					},
+					"Username": {
+						"type": "string"
+					},
+					"Password": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "SqlServerTable",
+				"schema": [],
+				"typeProperties": {}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/SqlServerDB')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/AzureDatabricks')]",
 			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
@@ -6544,562 +7121,6 @@
 				"typeProperties": {}
 			},
 			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/SqlServerDB_Dataset')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "SqlServerDB",
-					"type": "LinkedServiceReference",
-					"parameters": {
-						"DatabaseServerName": {
-							"value": "@dataset().DatabaseServerName",
-							"type": "Expression"
-						},
-						"DatabaseName": {
-							"value": "@dataset().DatabaseName",
-							"type": "Expression"
-						},
-						"Username": {
-							"value": "@dataset().Username",
-							"type": "Expression"
-						},
-						"Password": {
-							"value": "@dataset().Password",
-							"type": "Expression"
-						}
-					}
-				},
-				"parameters": {
-					"DatabaseServerName": {
-						"type": "string"
-					},
-					"DatabaseName": {
-						"type": "string"
-					},
-					"Username": {
-						"type": "string"
-					},
-					"Password": {
-						"type": "string"
-					}
-				},
-				"annotations": [],
-				"type": "SqlServerTable",
-				"schema": [],
-				"typeProperties": {}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/SqlServerDB')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Pipeline SqlServer DB to Data Lake')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "Extract data from an SQL DB into parquet files in Azure Blob Storage (ADLS Gen 2).\n\nUse a For Each loop operating in parallel mode.\n\nFor debugging purposes, you can simulate \n JSON array with:\n \n[{\"ProductNumber\" : \"HL-U509\"},{\"ProductNumber\" : \"FR-R92R-62\"}]",
-				"activities": [
-					{
-						"name": "Get Entities to Process",
-						"type": "Lookup",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "7.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "AzureSqlSource",
-								"sqlReaderStoredProcedureName": "[[Process].[up_GetEntitiesToProcess]",
-								"storedProcedureParameters": {
-									"BatchSize": {
-										"type": "Int32",
-										"value": "999999"
-									},
-									"EntityGroupKeyList": {
-										"type": "String",
-										"value": {
-											"value": "@pipeline().parameters.EntityGroupKeyList",
-											"type": "Expression"
-										}
-									},
-									"ProcessTypeKey": {
-										"type": "Int32",
-										"value": {
-											"value": "@variables('ProcessTypeKey')",
-											"type": "Expression"
-										}
-									}
-								}
-							},
-							"dataset": {
-								"referenceName": "ControlDB_Dataset",
-								"type": "DatasetReference",
-								"parameters": {}
-							},
-							"firstRowOnly": false
-						}
-					},
-					{
-						"name": "Filter out Invalid Entities",
-						"description": "If the EntityKey < 0, filter out.  An EntityKey of -1 is used to indicate there are no Entities to Process.",
-						"type": "Filter",
-						"dependsOn": [
-							{
-								"activity": "Get Entities to Process",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"items": {
-								"value": "@activity('Get Entities to Process').output.value",
-								"type": "Expression"
-							},
-							"condition": {
-								"value": "@greater(item().EntityKey, 0)",
-								"type": "Expression"
-							}
-						}
-					},
-					{
-						"name": "Process Entities",
-						"description": "Process each individual Entity.",
-						"type": "ForEach",
-						"dependsOn": [
-							{
-								"activity": "Filter out Invalid Entities",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"items": {
-								"value": "@activity('Filter out Invalid Entities').output.value",
-								"type": "Expression"
-							},
-							"activities": [
-								{
-									"name": "Set Process Start Time",
-									"description": "Set the LastRunStartTime for this Entity",
-									"type": "SqlServerStoredProcedure",
-									"dependsOn": [],
-									"policy": {
-										"timeout": "7.00:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"storedProcedureName": "[[Process].[up_UpdateEntityProcessStartTime]",
-										"storedProcedureParameters": {
-											"EntityKey": {
-												"value": {
-													"value": "@item().EntityKey",
-													"type": "Expression"
-												},
-												"type": "Int32"
-											}
-										}
-									},
-									"linkedServiceName": {
-										"referenceName": "ControlDB",
-										"type": "LinkedServiceReference"
-									}
-								},
-								{
-									"name": "Import Data",
-									"type": "Copy",
-									"dependsOn": [
-										{
-											"activity": "Translate JSON Variables",
-											"dependencyConditions": [
-												"Succeeded"
-											]
-										}
-									],
-									"policy": {
-										"timeout": "7.00:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"source": {
-											"type": "SqlServerSource",
-											"sqlReaderQuery": {
-												"value": "@activity('Translate JSON Variables').output.result.ExtractQuery",
-												"type": "Expression"
-											}
-										},
-										"sink": {
-											"type": "ParquetSink",
-											"storeSettings": {
-												"type": "AzureBlobFSWriteSettings"
-											}
-										},
-										"enableStaging": false,
-										"dataIntegrationUnits": 0
-									},
-									"inputs": [
-										{
-											"referenceName": "SqlServerDB_Dataset",
-											"type": "DatasetReference",
-											"parameters": {
-												"DatabaseServerName": {
-													"value": "@activity('Translate JSON Variables').output.result.DatabaseServerName",
-													"type": "Expression"
-												},
-												"DatabaseName": {
-													"value": "@activity('Translate JSON Variables').output.result.DatabaseName",
-													"type": "Expression"
-												},
-												"Username": {
-													"value": "@activity('Translate JSON Variables').output.result.Username",
-													"type": "Expression"
-												},
-												"Password": {
-													"value": "@activity('Translate JSON Variables').output.result.Password",
-													"type": "Expression"
-												}
-											}
-										}
-									],
-									"outputs": [
-										{
-											"referenceName": "ParquetBlobStorage_Dataset",
-											"type": "DatasetReference",
-											"parameters": {
-												"FilePath": {
-													"value": "@{activity('Translate JSON Variables').output.result.Scope}/@{activity('Translate JSON Variables').output.result.SourceSystem}/@{activity('Translate JSON Variables').output.result.EntityName}/Current",
-													"type": "Expression"
-												},
-												"FileName": {
-													"value": "@{activity('Translate JSON Variables').output.result.EntityName}.parquet",
-													"type": "Expression"
-												}
-											}
-										}
-									]
-								},
-								{
-									"name": "Indicate Success",
-									"type": "SqlServerStoredProcedure",
-									"dependsOn": [
-										{
-											"activity": "Save to History",
-											"dependencyConditions": [
-												"Succeeded"
-											]
-										}
-									],
-									"policy": {
-										"timeout": "7.00:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"storedProcedureName": "[[Process].[up_UpdateEntityDiagnostics]",
-										"storedProcedureParameters": {
-											"EntityKey": {
-												"value": {
-													"value": "@item().EntityKey",
-													"type": "Expression"
-												},
-												"type": "Int32"
-											},
-											"Result": {
-												"value": "Success",
-												"type": "String"
-											},
-											"ExecutionMessage": {
-												"value": {
-													"value": "@{activity('Translate JSON Variables').output.result.SourceSystem}.@{activity('Translate JSON Variables').output.result.EntityName} - Rows read: @{activity('Import Data').output.rowsRead} | Rows written: @{activity('Import Data').output.rowsCopied}",
-													"type": "Expression"
-												},
-												"type": "String"
-											}
-										}
-									},
-									"linkedServiceName": {
-										"referenceName": "ControlDB",
-										"type": "LinkedServiceReference"
-									}
-								},
-								{
-									"name": "Indicate Failure",
-									"type": "SqlServerStoredProcedure",
-									"dependsOn": [
-										{
-											"activity": "Import Data",
-											"dependencyConditions": [
-												"Failed"
-											]
-										}
-									],
-									"policy": {
-										"timeout": "7.00:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"storedProcedureName": "[[Process].[up_UpdateEntityDiagnostics]",
-										"storedProcedureParameters": {
-											"EntityKey": {
-												"value": {
-													"value": "@item().EntityKey",
-													"type": "Expression"
-												},
-												"type": "Int32"
-											},
-											"ExecutionMessage": {
-												"value": {
-													"value": "Error in Data Factory '@{pipeline().DataFactory}' | Pipeline '@{pipeline().Pipeline}' | Entity '@{activity('Translate JSON Variables').output.result.SourceSystem}.@{activity('Translate JSON Variables').output.result.EntityName}' | @{activity('Import Data').output.errors[0].Message}",
-													"type": "Expression"
-												},
-												"type": "String"
-											},
-											"Result": {
-												"value": "Failure",
-												"type": "String"
-											}
-										}
-									},
-									"linkedServiceName": {
-										"referenceName": "ControlDB",
-										"type": "LinkedServiceReference"
-									}
-								},
-								{
-									"name": "Translate JSON Variables",
-									"description": "Accept four parameters, VariablesJSON, OverrideVariablesJSON, ConfigurationJSON and DefaultsJSON and translate into a recordset where the columns are a representation of the nodes in the resultant JSON.",
-									"type": "AzureFunctionActivity",
-									"dependsOn": [
-										{
-											"activity": "Set Process Start Time",
-											"dependencyConditions": [
-												"Succeeded"
-											]
-										}
-									],
-									"policy": {
-										"timeout": "7.00:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"functionName": "TranslateVariables",
-										"method": "POST",
-										"headers": {},
-										"body": {
-											"value": "@item()",
-											"type": "Expression"
-										}
-									},
-									"linkedServiceName": {
-										"referenceName": "AzureFunctions",
-										"type": "LinkedServiceReference"
-									}
-								},
-								{
-									"name": "Save to History",
-									"description": "Save to History if required.",
-									"type": "IfCondition",
-									"dependsOn": [
-										{
-											"activity": "Import Data",
-											"dependencyConditions": [
-												"Succeeded"
-											]
-										}
-									],
-									"userProperties": [],
-									"typeProperties": {
-										"expression": {
-											"value": "@equals(activity('Translate JSON Variables').output.result.SaveToHistory, 'True')",
-											"type": "Expression"
-										},
-										"ifTrueActivities": [
-											{
-												"name": "Add DataDate and Save to History",
-												"type": "DatabricksNotebook",
-												"dependsOn": [
-													{
-														"activity": "Lookup the Data Date",
-														"dependencyConditions": [
-															"Succeeded"
-														]
-													}
-												],
-												"policy": {
-													"timeout": "7.00:00:00",
-													"retry": 0,
-													"retryIntervalInSeconds": 30,
-													"secureOutput": false,
-													"secureInput": false
-												},
-												"userProperties": [],
-												"typeProperties": {
-													"notebookPath": "/Analytics/_Add DataDate and Save to History",
-													"baseParameters": {
-														"Scope": {
-															"value": "@activity('Translate JSON Variables').output.result.Scope",
-															"type": "Expression"
-														},
-														"SourceSystem": {
-															"value": "@activity('Translate JSON Variables').output.result.SourceSystem",
-															"type": "Expression"
-														},
-														"Entity": {
-															"value": "@activity('Translate JSON Variables').output.result.EntityName",
-															"type": "Expression"
-														},
-														"DataDate": {
-															"value": "@string(activity('Lookup the Data Date').output.firstRow.DataDate)",
-															"type": "Expression"
-														},
-														"FileFormat": {
-															"value": "@activity('Translate JSON Variables').output.result.FileFormat",
-															"type": "Expression"
-														}
-													}
-												},
-												"linkedServiceName": {
-													"referenceName": "AzureDatabricks",
-													"type": "LinkedServiceReference"
-												}
-											},
-											{
-												"name": "Lookup the Data Date",
-												"description": "Read the Control table that specifies which date this data pertains to.",
-												"type": "Lookup",
-												"dependsOn": [],
-												"policy": {
-													"timeout": "7.00:00:00",
-													"retry": 0,
-													"retryIntervalInSeconds": 30,
-													"secureOutput": false,
-													"secureInput": false
-												},
-												"userProperties": [],
-												"typeProperties": {
-													"source": {
-														"type": "AzureSqlSource",
-														"sqlReaderQuery": {
-															"value": "@activity('Translate JSON Variables').output.result.DataDateQuery",
-															"type": "Expression"
-														}
-													},
-													"dataset": {
-														"referenceName": "ControlDB_Dataset",
-														"type": "DatasetReference",
-														"parameters": {}
-													}
-												}
-											}
-										]
-									}
-								},
-								{
-									"name": "Indicate Failure 2",
-									"type": "SqlServerStoredProcedure",
-									"dependsOn": [
-										{
-											"activity": "Save to History",
-											"dependencyConditions": [
-												"Failed"
-											]
-										}
-									],
-									"policy": {
-										"timeout": "7.00:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"storedProcedureName": "[[Process].[up_UpdateEntityDiagnostics]",
-										"storedProcedureParameters": {
-											"EntityKey": {
-												"value": {
-													"value": "@item().EntityKey",
-													"type": "Expression"
-												},
-												"type": "Int32"
-											},
-											"ExecutionMessage": {
-												"value": {
-													"value": "Error in Data Factory '@{pipeline().DataFactory}' | Pipeline '@{pipeline().Pipeline}' | Entity '@{activity('Translate JSON Variables').output.result.SourceSystem}.@{activity('Translate JSON Variables').output.result.EntityName}' | @{activity('Save to History').errors[0].Message}",
-													"type": "Expression"
-												},
-												"type": "String"
-											},
-											"Result": {
-												"value": "Failure",
-												"type": "String"
-											}
-										}
-									},
-									"linkedServiceName": {
-										"referenceName": "ControlDB",
-										"type": "LinkedServiceReference"
-									}
-								}
-							]
-						}
-					}
-				],
-				"parameters": {
-					"EntityGroupKeyList": {
-						"type": "String",
-						"defaultValue": "8"
-					}
-				},
-				"variables": {
-					"ProcessTypeKey": {
-						"type": "String",
-						"defaultValue": "11"
-					}
-				},
-				"folder": {
-					"name": "Experimentation"
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/ControlDB_Dataset')]",
-				"[concat(variables('factoryId'), '/linkedServices/ControlDB')]",
-				"[concat(variables('factoryId'), '/datasets/SqlServerDB_Dataset')]",
-				"[concat(variables('factoryId'), '/datasets/ParquetBlobStorage_Dataset')]",
-				"[concat(variables('factoryId'), '/linkedServices/AzureFunctions')]",
-				"[concat(variables('factoryId'), '/linkedServices/AzureDatabricks')]"
-			]
 		}
 	]
 }

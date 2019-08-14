@@ -6,22 +6,6 @@
 			"type": "string",
 			"metadata": "Data Factory Name",
 			"defaultValue": "flp2d2dfanalytics01d"
-		},
-		"Trigger - Deconstruct JSON to Table_properties__Process Type 8 - Deconstruct JSON into Tabular Form in Data Lake_parameters_EntityGroupKeyList": {
-			"type": "string",
-			"defaultValue": "3"
-		},
-		"Trigger - Determine Changeset_properties__Process Type 2 - Determine Changeset in Data Lake_parameters_EntityGroupKeyList": {
-			"type": "string",
-			"defaultValue": "3"
-		},
-		"Trigger - Process Changeset into Delta Table_properties__Process Type 3 - Apply Changeset to Delta Lake_parameters_EntityGroupKeyList": {
-			"type": "string",
-			"defaultValue": "3"
-		},
-		"Trigger - Research Now - Source to Data Lake_properties__Process Type 7 - ETL - REST API to Data Lake_parameters_EntityGroupKeyList": {
-			"type": "string",
-			"defaultValue": "3"
 		}
 	},
 	"variables": {
@@ -29,145 +13,23 @@
 	},
 	"resources": [
 		{
-			"name": "[concat(parameters('factoryName'), '/OracleDB_Dataset')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
+			"name": "[concat(parameters('factoryName'), '/MicksTestPipeline')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"linkedServiceName": {
-					"referenceName": "OracleDB",
-					"type": "LinkedServiceReference",
-					"parameters": {
-						"Host": {
-							"value": "@dataset().Host",
-							"type": "Expression"
-						},
-						"Port": {
-							"value": "@dataset().Port",
-							"type": "Expression"
-						},
-						"SID": {
-							"value": "@dataset().SID",
-							"type": "Expression"
-						},
-						"Username": {
-							"value": "@dataset().Username",
-							"type": "Expression"
-						},
-						"Password": {
-							"value": "@dataset().Password",
-							"type": "Expression"
+				"description": "Testing for Source Control",
+				"activities": [
+					{
+						"name": "Wait1",
+						"type": "Wait",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 1
 						}
 					}
-				},
-				"parameters": {
-					"Host": {
-						"type": "string"
-					},
-					"Port": {
-						"type": "string"
-					},
-					"SID": {
-						"type": "string"
-					},
-					"Username": {
-						"type": "string"
-					},
-					"Password": {
-						"type": "string"
-					}
-				},
-				"annotations": [],
-				"type": "OracleTable",
-				"typeProperties": {}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/ParquetBlobStorage_Dataset')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "Parquet format file.",
-				"linkedServiceName": {
-					"referenceName": "BlobStorage",
-					"type": "LinkedServiceReference"
-				},
-				"parameters": {
-					"FilePath": {
-						"type": "string"
-					},
-					"FileName": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "Final Datasets"
-				},
-				"annotations": [],
-				"type": "Parquet",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobFSLocation",
-						"fileName": {
-							"value": "@dataset().FileName",
-							"type": "Expression"
-						},
-						"folderPath": {
-							"value": "@dataset().FilePath",
-							"type": "Expression"
-						}
-					},
-					"compressionCodec": "snappy"
-				},
-				"schema": []
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/SqlServerDB_Dataset')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "SqlServerDB",
-					"type": "LinkedServiceReference",
-					"parameters": {
-						"DatabaseServerName": {
-							"value": "@dataset().DatabaseServerName",
-							"type": "Expression"
-						},
-						"DatabaseName": {
-							"value": "@dataset().DatabaseName",
-							"type": "Expression"
-						},
-						"Username": {
-							"value": "@dataset().Username",
-							"type": "Expression"
-						},
-						"Password": {
-							"value": "@dataset().Password",
-							"type": "Expression"
-						}
-					}
-				},
-				"parameters": {
-					"DatabaseServerName": {
-						"type": "string"
-					},
-					"DatabaseName": {
-						"type": "string"
-					},
-					"Username": {
-						"type": "string"
-					},
-					"Password": {
-						"type": "string"
-					}
-				},
-				"annotations": [],
-				"type": "SqlServerTable",
-				"schema": [],
-				"typeProperties": {}
+				],
+				"annotations": []
 			},
 			"dependsOn": []
 		},
@@ -217,8 +79,7 @@
 							},
 							"dataset": {
 								"referenceName": "ControlDB_Dataset",
-								"type": "DatasetReference",
-								"parameters": {}
+								"type": "DatasetReference"
 							},
 							"firstRowOnly": false
 						}
@@ -495,7 +356,6 @@
 									"typeProperties": {
 										"functionName": "TranslateVariables",
 										"method": "POST",
-										"headers": {},
 										"body": {
 											"value": "@item()",
 											"type": "Expression"
@@ -597,8 +457,7 @@
 													},
 													"dataset": {
 														"referenceName": "ControlDB_Dataset",
-														"type": "DatasetReference",
-														"parameters": {}
+														"type": "DatasetReference"
 													}
 												}
 											}
@@ -674,8 +533,11 @@
 				"annotations": []
 			},
 			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ControlDB_Dataset')]",
 				"[concat(variables('factoryId'), '/datasets/OracleDB_Dataset')]",
-				"[concat(variables('factoryId'), '/datasets/ParquetBlobStorage_Dataset')]"
+				"[concat(variables('factoryId'), '/datasets/ParquetBlobStorage_Dataset')]",
+				"[concat(variables('factoryId'), '/linkedServices/AzureFunctions')]",
+				"[concat(variables('factoryId'), '/linkedServices/AzureDatabricks')]"
 			]
 		},
 		{
@@ -724,8 +586,7 @@
 							},
 							"dataset": {
 								"referenceName": "ControlDB_Dataset",
-								"type": "DatasetReference",
-								"parameters": {}
+								"type": "DatasetReference"
 							},
 							"firstRowOnly": false
 						}
@@ -997,7 +858,6 @@
 									"typeProperties": {
 										"functionName": "TranslateVariables",
 										"method": "POST",
-										"headers": {},
 										"body": {
 											"value": "@item()",
 											"type": "Expression"
@@ -1099,8 +959,7 @@
 													},
 													"dataset": {
 														"referenceName": "ControlDB_Dataset",
-														"type": "DatasetReference",
-														"parameters": {}
+														"type": "DatasetReference"
 													}
 												}
 											}
@@ -1176,8 +1035,11 @@
 				"annotations": []
 			},
 			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ControlDB_Dataset')]",
 				"[concat(variables('factoryId'), '/datasets/SqlServerDB_Dataset')]",
-				"[concat(variables('factoryId'), '/datasets/ParquetBlobStorage_Dataset')]"
+				"[concat(variables('factoryId'), '/datasets/ParquetBlobStorage_Dataset')]",
+				"[concat(variables('factoryId'), '/linkedServices/AzureFunctions')]",
+				"[concat(variables('factoryId'), '/linkedServices/AzureDatabricks')]"
 			]
 		},
 		{
@@ -1226,8 +1088,7 @@
 							},
 							"dataset": {
 								"referenceName": "ControlDB_Dataset",
-								"type": "DatasetReference",
-								"parameters": {}
+								"type": "DatasetReference"
 							},
 							"firstRowOnly": false
 						}
@@ -1549,7 +1410,6 @@
 									"typeProperties": {
 										"functionName": "TranslateVariables",
 										"method": "POST",
-										"headers": {},
 										"body": {
 											"value": "@item()",
 											"type": "Expression"
@@ -1644,7 +1504,10 @@
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/ParquetBlobStorage_Dataset')]"
+				"[concat(variables('factoryId'), '/datasets/ControlDB_Dataset')]",
+				"[concat(variables('factoryId'), '/datasets/AzureSqlDB_Dataset')]",
+				"[concat(variables('factoryId'), '/datasets/ParquetBlobStorage_Dataset')]",
+				"[concat(variables('factoryId'), '/linkedServices/AzureFunctions')]"
 			]
 		},
 		{
@@ -1776,7 +1639,6 @@
 									"typeProperties": {
 										"functionName": "TranslateVariables",
 										"method": "POST",
-										"headers": {},
 										"body": {
 											"value": "@item()",
 											"type": "Expression"
@@ -1923,8 +1785,7 @@
 							},
 							"dataset": {
 								"referenceName": "ControlDB_Dataset",
-								"type": "DatasetReference",
-								"parameters": {}
+								"type": "DatasetReference"
 							},
 							"firstRowOnly": false
 						}
@@ -1968,7 +1829,11 @@
 				},
 				"annotations": []
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ControlDB_Dataset')]",
+				"[concat(variables('factoryId'), '/linkedServices/AzureDatabricks')]",
+				"[concat(variables('factoryId'), '/linkedServices/AzureFunctions')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/_Process Type 3 - Apply Changeset to Delta Lake')]",
@@ -2107,7 +1972,6 @@
 									"typeProperties": {
 										"functionName": "TranslateVariables",
 										"method": "POST",
-										"headers": {},
 										"body": {
 											"value": "@item()",
 											"type": "Expression"
@@ -2242,8 +2106,7 @@
 										},
 										"dataset": {
 											"referenceName": "ControlDB_Dataset",
-											"type": "DatasetReference",
-											"parameters": {}
+											"type": "DatasetReference"
 										}
 									}
 								}
@@ -2289,8 +2152,7 @@
 							},
 							"dataset": {
 								"referenceName": "ControlDB_Dataset",
-								"type": "DatasetReference",
-								"parameters": {}
+								"type": "DatasetReference"
 							},
 							"firstRowOnly": false
 						}
@@ -2334,7 +2196,11 @@
 				},
 				"annotations": []
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ControlDB_Dataset')]",
+				"[concat(variables('factoryId'), '/linkedServices/AzureDatabricks')]",
+				"[concat(variables('factoryId'), '/linkedServices/AzureFunctions')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/_Process Type 4 - Apply Changeset to Data Warehouse')]",
@@ -2415,7 +2281,6 @@
 									"typeProperties": {
 										"functionName": "TranslateVariables",
 										"method": "POST",
-										"headers": {},
 										"body": {
 											"value": "@item()",
 											"type": "Expression"
@@ -2550,8 +2415,7 @@
 										},
 										"dataset": {
 											"referenceName": "ControlDB_Dataset",
-											"type": "DatasetReference",
-											"parameters": {}
+											"type": "DatasetReference"
 										}
 									}
 								},
@@ -2752,8 +2616,7 @@
 							},
 							"dataset": {
 								"referenceName": "ControlDB_Dataset",
-								"type": "DatasetReference",
-								"parameters": {}
+								"type": "DatasetReference"
 							},
 							"firstRowOnly": false
 						}
@@ -2798,7 +2661,10 @@
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/ParquetBlobStorage_Dataset')]"
+				"[concat(variables('factoryId'), '/datasets/ControlDB_Dataset')]",
+				"[concat(variables('factoryId'), '/linkedServices/AzureFunctions')]",
+				"[concat(variables('factoryId'), '/datasets/ParquetBlobStorage_Dataset')]",
+				"[concat(variables('factoryId'), '/datasets/DataWarehouseDB_Dataset')]"
 			]
 		},
 		{
@@ -2880,7 +2746,6 @@
 									"typeProperties": {
 										"functionName": "TranslateVariables",
 										"method": "POST",
-										"headers": {},
 										"body": {
 											"value": "@item()",
 											"type": "Expression"
@@ -3182,8 +3047,7 @@
 							},
 							"dataset": {
 								"referenceName": "ControlDB_Dataset",
-								"type": "DatasetReference",
-								"parameters": {}
+								"type": "DatasetReference"
 							},
 							"firstRowOnly": false
 						}
@@ -3227,7 +3091,11 @@
 				},
 				"annotations": []
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ControlDB_Dataset')]",
+				"[concat(variables('factoryId'), '/linkedServices/AzureFunctions')]",
+				"[concat(variables('factoryId'), '/datasets/DataWarehouseDB_Dataset')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/_Process Type 6  - Json File to Blob')]",
@@ -3275,8 +3143,7 @@
 							},
 							"dataset": {
 								"referenceName": "ControlDB_Dataset",
-								"type": "DatasetReference",
-								"parameters": {}
+								"type": "DatasetReference"
 							},
 							"firstRowOnly": false
 						}
@@ -3537,7 +3404,6 @@
 									"typeProperties": {
 										"functionName": "TranslateVariables",
 										"method": "POST",
-										"headers": {},
 										"body": {
 											"value": "@item()",
 											"type": "Expression"
@@ -3570,7 +3436,10 @@
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/ParquetBlobStorage_Dataset')]"
+				"[concat(variables('factoryId'), '/datasets/ControlDB_Dataset')]",
+				"[concat(variables('factoryId'), '/datasets/JsonFile_Dataset')]",
+				"[concat(variables('factoryId'), '/datasets/ParquetBlobStorage_Dataset')]",
+				"[concat(variables('factoryId'), '/linkedServices/AzureFunctions')]"
 			]
 		},
 		{
@@ -3619,8 +3488,7 @@
 							},
 							"dataset": {
 								"referenceName": "ControlDB_Dataset",
-								"type": "DatasetReference",
-								"parameters": {}
+								"type": "DatasetReference"
 							},
 							"firstRowOnly": false
 						}
@@ -3815,7 +3683,6 @@
 									"typeProperties": {
 										"functionName": "TranslateVariables",
 										"method": "POST",
-										"headers": {},
 										"body": {
 											"value": "@item()",
 											"type": "Expression"
@@ -4317,8 +4184,7 @@
 													},
 													"dataset": {
 														"referenceName": "ControlDB_Dataset",
-														"type": "DatasetReference",
-														"parameters": {}
+														"type": "DatasetReference"
 													}
 												}
 											}
@@ -4437,7 +4303,13 @@
 				},
 				"annotations": []
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ControlDB_Dataset')]",
+				"[concat(variables('factoryId'), '/linkedServices/AzureFunctions')]",
+				"[concat(variables('factoryId'), '/datasets/REST_Dataset')]",
+				"[concat(variables('factoryId'), '/datasets/JsonFile_Dataset')]",
+				"[concat(variables('factoryId'), '/linkedServices/AzureDatabricks')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/_Process Type 7 - REST API to Blob')]",
@@ -4485,8 +4357,7 @@
 							},
 							"dataset": {
 								"referenceName": "ControlDB_Dataset",
-								"type": "DatasetReference",
-								"parameters": {}
+								"type": "DatasetReference"
 							},
 							"firstRowOnly": false
 						}
@@ -4681,7 +4552,6 @@
 									"typeProperties": {
 										"functionName": "TranslateVariables",
 										"method": "POST",
-										"headers": {},
 										"body": {
 											"value": "@item()",
 											"type": "Expression"
@@ -5113,7 +4983,12 @@
 				},
 				"annotations": []
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ControlDB_Dataset')]",
+				"[concat(variables('factoryId'), '/linkedServices/AzureFunctions')]",
+				"[concat(variables('factoryId'), '/datasets/REST_Dataset')]",
+				"[concat(variables('factoryId'), '/datasets/JsonFile_Dataset')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/_Process Type 8 - Deconstruct JSON into Tabular Form in Data Lake')]",
@@ -5252,7 +5127,6 @@
 									"typeProperties": {
 										"functionName": "TranslateVariables",
 										"method": "POST",
-										"headers": {},
 										"body": {
 											"value": "@item()",
 											"type": "Expression"
@@ -5387,8 +5261,7 @@
 										},
 										"dataset": {
 											"referenceName": "ControlDB_Dataset",
-											"type": "DatasetReference",
-											"parameters": {}
+											"type": "DatasetReference"
 										}
 									}
 								}
@@ -5434,8 +5307,7 @@
 							},
 							"dataset": {
 								"referenceName": "ControlDB_Dataset",
-								"type": "DatasetReference",
-								"parameters": {}
+								"type": "DatasetReference"
 							},
 							"firstRowOnly": false
 						}
@@ -5479,7 +5351,11 @@
 				},
 				"annotations": []
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ControlDB_Dataset')]",
+				"[concat(variables('factoryId'), '/linkedServices/AzureDatabricks')]",
+				"[concat(variables('factoryId'), '/linkedServices/AzureFunctions')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/_Process Type 9 - Execute Query in Control Database')]",
@@ -5560,7 +5436,6 @@
 									"typeProperties": {
 										"functionName": "TranslateVariables",
 										"method": "POST",
-										"headers": {},
 										"body": {
 											"value": "@item()",
 											"type": "Expression"
@@ -5600,8 +5475,7 @@
 										},
 										"dataset": {
 											"referenceName": "ControlDB_Dataset",
-											"type": "DatasetReference",
-											"parameters": {}
+											"type": "DatasetReference"
 										}
 									}
 								},
@@ -5798,8 +5672,7 @@
 							},
 							"dataset": {
 								"referenceName": "ControlDB_Dataset",
-								"type": "DatasetReference",
-								"parameters": {}
+								"type": "DatasetReference"
 							},
 							"firstRowOnly": false
 						}
@@ -5843,7 +5716,10 @@
 				},
 				"annotations": []
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ControlDB_Dataset')]",
+				"[concat(variables('factoryId'), '/linkedServices/AzureFunctions')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/_Process Type 9 - Execute Sproc in Control Database')]",
@@ -5924,7 +5800,6 @@
 									"typeProperties": {
 										"functionName": "TranslateVariables",
 										"method": "POST",
-										"headers": {},
 										"body": {
 											"value": "@item()",
 											"type": "Expression"
@@ -6101,8 +5976,7 @@
 							},
 							"dataset": {
 								"referenceName": "ControlDB_Dataset",
-								"type": "DatasetReference",
-								"parameters": {}
+								"type": "DatasetReference"
 							},
 							"firstRowOnly": false
 						}
@@ -6146,6 +6020,460 @@
 				},
 				"annotations": []
 			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ControlDB_Dataset')]",
+				"[concat(variables('factoryId'), '/linkedServices/AzureFunctions')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureSqlDB_Dataset')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "A dataset originating from Azure SQL DB.",
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDB",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"DatabaseServerName": {
+							"value": "@dataset().DatabaseServerName",
+							"type": "Expression"
+						},
+						"DatabaseName": {
+							"value": "@dataset().DatabaseName",
+							"type": "Expression"
+						}
+					}
+				},
+				"parameters": {
+					"DatabaseServerName": {
+						"type": "string",
+						"defaultValue": "planka.database.windows.net"
+					},
+					"DatabaseName": {
+						"type": "string",
+						"defaultValue": "WideWorldImporters"
+					}
+				},
+				"folder": {
+					"name": "Final Datasets"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ControlDB_Dataset')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "A dataset originating from the Control DB.",
+				"linkedServiceName": {
+					"referenceName": "ControlDB",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Final Datasets"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DataWarehouseDB_Dataset')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "DataWarehouseDB",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"TableName": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Final Datasets"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"tableName": {
+						"value": "@dataset().TableName",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DelimitedTextFile_Dataset')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "FlindersUniFileServer",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "FileServerLocation",
+						"fileName": "test.csv",
+						"folderPath": "Data Management/Data Exchange"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/JsonFile_Dataset')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "JSON File",
+				"linkedServiceName": {
+					"referenceName": "BlobStorage",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"FilePath": {
+						"type": "string"
+					},
+					"FileName": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Final Datasets"
+				},
+				"annotations": [],
+				"type": "AzureBlobFSFile",
+				"typeProperties": {
+					"format": {
+						"type": "JsonFormat"
+					},
+					"fileName": {
+						"value": "@dataset().FileName",
+						"type": "Expression"
+					},
+					"folderPath": {
+						"value": "@dataset().FilePath",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/BlobStorage')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/OracleDB_Dataset')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "OracleDB",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"Host": {
+							"value": "@dataset().Host",
+							"type": "Expression"
+						},
+						"Port": {
+							"value": "@dataset().Port",
+							"type": "Expression"
+						},
+						"SID": {
+							"value": "@dataset().SID",
+							"type": "Expression"
+						},
+						"Username": {
+							"value": "@dataset().Username",
+							"type": "Expression"
+						},
+						"Password": {
+							"value": "@dataset().Password",
+							"type": "Expression"
+						}
+					}
+				},
+				"parameters": {
+					"Host": {
+						"type": "string"
+					},
+					"Port": {
+						"type": "string"
+					},
+					"SID": {
+						"type": "string"
+					},
+					"Username": {
+						"type": "string"
+					},
+					"Password": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "OracleTable"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ParquetBlobStorage_Dataset')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Parquet format file.",
+				"linkedServiceName": {
+					"referenceName": "BlobStorage",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"FilePath": {
+						"type": "string"
+					},
+					"FileName": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Final Datasets"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@dataset().FileName",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "@dataset().FilePath",
+							"type": "Expression"
+						}
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/BlobStorage')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/REST_Dataset')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Dataset for JSON response from REST API.",
+				"linkedServiceName": {
+					"referenceName": "RESTService",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"BaseUrl": {
+							"value": "@dataset().BaseUrl",
+							"type": "Expression"
+						}
+					}
+				},
+				"parameters": {
+					"RelativeUrl": {
+						"type": "string"
+					},
+					"PaginationJsonPath": {
+						"type": "string"
+					},
+					"ApiKey": {
+						"type": "string"
+					},
+					"Authorization": {
+						"type": "string"
+					},
+					"BaseUrl": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Final Datasets"
+				},
+				"annotations": [],
+				"type": "RestResource",
+				"typeProperties": {
+					"relativeUrl": {
+						"value": "@dataset().RelativeUrl",
+						"type": "Expression"
+					},
+					"requestMethod": "GET",
+					"additionalHeaders": {
+						"Authorization": {
+							"value": "@dataset().Authorization",
+							"type": "Expression"
+						},
+						"api-key": {
+							"value": "@dataset().ApiKey",
+							"type": "Expression"
+						}
+					},
+					"paginationRules": {
+						"AbsoluteUrl": {
+							"value": "@dataset().PaginationJsonPath",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/SqlServerDB_Dataset')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "SqlServerDB",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"DatabaseServerName": {
+							"value": "@dataset().DatabaseServerName",
+							"type": "Expression"
+						},
+						"DatabaseName": {
+							"value": "@dataset().DatabaseName",
+							"type": "Expression"
+						},
+						"Username": {
+							"value": "@dataset().Username",
+							"type": "Expression"
+						},
+						"Password": {
+							"value": "@dataset().Password",
+							"type": "Expression"
+						}
+					}
+				},
+				"parameters": {
+					"DatabaseServerName": {
+						"type": "string"
+					},
+					"DatabaseName": {
+						"type": "string"
+					},
+					"Username": {
+						"type": "string"
+					},
+					"Password": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "SqlServerTable",
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureDatabricks')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureDatabricks",
+				"typeProperties": {
+					"domain": "https://australiaeast.azuredatabricks.net",
+					"accessToken": {
+						"type": "AzureKeyVaultSecret",
+						"store": {
+							"referenceName": "DataFactoryKeyVault",
+							"type": "LinkedServiceReference"
+						},
+						"secretName": "DatabricksAccessToken"
+					},
+					"existingClusterId": "0717-070857-pool786"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/DataFactoryKeyVault')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureFunctions')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Linked Service to Azure Functions.",
+				"annotations": [],
+				"type": "AzureFunction",
+				"typeProperties": {
+					"functionAppUrl": "https://flp2d2fnanalytics01d.azurewebsites.net",
+					"functionKey": {
+						"type": "AzureKeyVaultSecret",
+						"store": {
+							"referenceName": "DataFactoryKeyVault",
+							"type": "LinkedServiceReference"
+						},
+						"secretName": "AzureFunctionAppHostKey"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/DataFactoryKeyVault')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/BlobStorage')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "https://flp2d2stanalytics01d.dfs.core.windows.net",
+					"accountKey": {
+						"type": "AzureKeyVaultSecret",
+						"store": {
+							"referenceName": "DataFactoryKeyVault",
+							"type": "LinkedServiceReference"
+						},
+						"secretName": "BlobStorageAccountKey"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/DataFactoryKeyVault')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DataFactoryKeyVault')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureKeyVault",
+				"typeProperties": {
+					"baseUrl": "https://flp2d2kvdatafactory01d.vault.azure.net/"
+				}
+			},
 			"dependsOn": []
 		},
 		{
@@ -6163,7 +6491,7 @@
 							"type": "PipelineReference"
 						},
 						"parameters": {
-							"EntityGroupKeyList": "[parameters('Trigger - Deconstruct JSON to Table_properties__Process Type 8 - Deconstruct JSON into Tabular Form in Data Lake_parameters_EntityGroupKeyList')]"
+							"EntityGroupKeyList": "3"
 						}
 					}
 				],
@@ -6212,7 +6540,7 @@
 							"type": "PipelineReference"
 						},
 						"parameters": {
-							"EntityGroupKeyList": "[parameters('Trigger - Determine Changeset_properties__Process Type 2 - Determine Changeset in Data Lake_parameters_EntityGroupKeyList')]"
+							"EntityGroupKeyList": "3"
 						}
 					}
 				],
@@ -6261,7 +6589,7 @@
 							"type": "PipelineReference"
 						},
 						"parameters": {
-							"EntityGroupKeyList": "[parameters('Trigger - Process Changeset into Delta Table_properties__Process Type 3 - Apply Changeset to Delta Lake_parameters_EntityGroupKeyList')]"
+							"EntityGroupKeyList": "3"
 						}
 					}
 				],
@@ -6310,7 +6638,7 @@
 							"type": "PipelineReference"
 						},
 						"parameters": {
-							"EntityGroupKeyList": "[parameters('Trigger - Research Now - Source to Data Lake_properties__Process Type 7 - ETL - REST API to Data Lake_parameters_EntityGroupKeyList')]"
+							"EntityGroupKeyList": "3"
 						}
 					}
 				],
@@ -6342,6 +6670,102 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/pipelines/_Process Type 7 - ETL - REST API to Data Lake')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Trigger - Reset Processing Framework')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Reset to False the HasProcessed and IsProcessing flags of the Process.Entity table.  This will prepare the Processing Framework to begin once local time has passed midnight (handled by another Trigger).",
+				"annotations": [],
+				"runtimeState": "Started",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "_Process Type 9 - Execute Query in Control Database",
+							"type": "PipelineReference"
+						},
+						"parameters": {
+							"EntityGroupKeyList": "6"
+						}
+					}
+				],
+				"type": "ScheduleTrigger",
+				"typeProperties": {
+					"recurrence": {
+						"frequency": "Day",
+						"interval": 1,
+						"startTime": "2019-08-07T22:06:00.000Z",
+						"timeZone": "UTC",
+						"schedule": {
+							"minutes": [
+								35,
+								45
+							],
+							"hours": [
+								12,
+								13
+							]
+						}
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/_Process Type 9 - Execute Query in Control Database')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Trigger - Start of Day Processing')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "The trigger is looking for Start of Day (once local time has clocked past midnight).  When this happens, it allows the Process Framework to begin for the day.",
+				"annotations": [],
+				"runtimeState": "Started",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "_Process Type 9 - Execute Sproc in Control Database",
+							"type": "PipelineReference"
+						},
+						"parameters": {
+							"EntityGroupKeyList": "5"
+						}
+					},
+					{
+						"pipelineReference": {
+							"referenceName": "_Process Type 9 - Execute Query in Control Database",
+							"type": "PipelineReference"
+						},
+						"parameters": {
+							"EntityGroupKeyList": "5"
+						}
+					}
+				],
+				"type": "ScheduleTrigger",
+				"typeProperties": {
+					"recurrence": {
+						"frequency": "Day",
+						"interval": 1,
+						"startTime": "2019-08-07T22:02:00.000Z",
+						"timeZone": "UTC",
+						"schedule": {
+							"minutes": [
+								35,
+								45
+							],
+							"hours": [
+								13,
+								14
+							]
+						}
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/_Process Type 9 - Execute Sproc in Control Database')]",
+				"[concat(variables('factoryId'), '/pipelines/_Process Type 9 - Execute Query in Control Database')]"
 			]
 		}
 	]

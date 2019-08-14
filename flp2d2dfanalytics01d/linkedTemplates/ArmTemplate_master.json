@@ -182,9 +182,6 @@
 					},
 					"Trigger - Research Now - Source to Data Lake_properties__Process Type 7 - ETL - REST API to Data Lake_parameters_EntityGroupKeyList": {
 						"value": "[parameters('Trigger - Research Now - Source to Data Lake_properties__Process Type 7 - ETL - REST API to Data Lake_parameters_EntityGroupKeyList')]"
-					},
-					"Trigger - Reset Processing Framework_properties__Process Type 9 - Execute Query in Control Database_parameters_EntityGroupKeyList": {
-						"value": "[parameters('Trigger - Reset Processing Framework_properties__Process Type 9 - Execute Query in Control Database_parameters_EntityGroupKeyList')]"
 					}
 				}
 			},
@@ -205,6 +202,9 @@
 				"parameters": {
 					"factoryName": {
 						"value": "[parameters('factoryName')]"
+					},
+					"Trigger - Reset Processing Framework_properties__Process Type 9 - Execute Query in Control Database_parameters_EntityGroupKeyList": {
+						"value": "[parameters('Trigger - Reset Processing Framework_properties__Process Type 9 - Execute Query in Control Database_parameters_EntityGroupKeyList')]"
 					},
 					"Trigger - Start of Day Processing_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList": {
 						"value": "[parameters('Trigger - Start of Day Processing_properties__Process Type 9 - Execute Sproc in Control Database_parameters_EntityGroupKeyList')]"
