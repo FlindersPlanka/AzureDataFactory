@@ -1,7 +1,7 @@
 {
-	"name": "_Process Type 10 - Transform Multiple Parquet into Single Delta Table",
+	"name": "_Process Type 10 - Transform Multiple Dataset into Single Delta Table",
 	"properties": {
-		"description": "Transform Multiple Files into Single Delta Table dynamically.",
+		"description": "Transform Multiple Dataset into Single Delta Table dynamically.",
 		"activities": [
 			{
 				"name": "Process Entity",
