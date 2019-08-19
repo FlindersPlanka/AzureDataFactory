@@ -234,7 +234,7 @@
 							},
 							"userProperties": [],
 							"typeProperties": {
-								"notebookPath": "/Users/mali0092@flinders.edu.au/_Transform Multiple parquet into Single Delta Table",
+								"notebookPath": "/Users/mali0092@flinders.edu.au/_Transform Multiple Datasets into Single Delta Table",
 								"baseParameters": {
 									"TargetSystem": "@activity('Translate JSON Variables').output.result.TargetSystem",
 									"TargetEntity": "@activity('Translate JSON Variables').output.result.TargetEntityName",
