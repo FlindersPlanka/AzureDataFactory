@@ -23,57 +23,6 @@
 					},
 					"activities": [
 						{
-							"name": "Deconstruct JSON into Table",
-							"description": "This Notebook will record History and deconstruct the JSON structure into a tabular format.",
-							"type": "DatabricksNotebook",
-							"dependsOn": [],
-							"policy": {
-								"timeout": "7.00:00:00",
-								"retry": 0,
-								"retryIntervalInSeconds": 30,
-								"secureOutput": false,
-								"secureInput": false
-							},
-							"userProperties": [],
-							"typeProperties": {
-								"notebookPath": "/Analytics/_Deconstruct JSON to Table",
-								"baseParameters": {
-									"SourceSystem": {
-										"value": "@activity('Translate JSON Variables').output.result.SourceSystem",
-										"type": "Expression"
-									},
-									"Entity": {
-										"value": "@activity('Translate JSON Variables').output.result.EntityName",
-										"type": "Expression"
-									},
-									"Scope": {
-										"value": "@activity('Translate JSON Variables').output.result.Scope",
-										"type": "Expression"
-									},
-									"DeconstructionSql": {
-										"value": "@activity('Translate JSON Variables').output.result.DeconstructionSql",
-										"type": "Expression"
-									},
-									"DeconstructedTableName": {
-										"value": "@activity('Translate JSON Variables').output.result.DeconstructedTableName",
-										"type": "Expression"
-									},
-									"DataDate": {
-										"value": "@string(activity('Lookup the Data Date').output.firstRow.DataDate)",
-										"type": "Expression"
-									},
-									"SaveToHistory": {
-										"value": "@activity('Translate JSON Variables').output.result.SaveToHistory",
-										"type": "Expression"
-									}
-								}
-							},
-							"linkedServiceName": {
-								"referenceName": "AzureDatabricks",
-								"type": "LinkedServiceReference"
-							}
-						},
-						{
 							"name": "Set Process Start Time",
 							"description": "Set the LastRunStartTime for this Entity",
 							"type": "SqlServerStoredProcedure",
@@ -139,7 +88,14 @@
 						{
 							"name": "Indicate Success",
 							"type": "SqlServerStoredProcedure",
-							"dependsOn": [],
+							"dependsOn": [
+								{
+									"activity": "Transform into Single Delta Table",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
 							"policy": {
 								"timeout": "7.00:00:00",
 								"retry": 0,
@@ -179,7 +135,14 @@
 						{
 							"name": "Indicate Failure",
 							"type": "SqlServerStoredProcedure",
-							"dependsOn": [],
+							"dependsOn": [
+								{
+									"activity": "Transform into Single Delta Table",
+									"dependencyConditions": [
+										"Failed"
+									]
+								}
+							],
 							"policy": {
 								"timeout": "7.00:00:00",
 								"retry": 0,
@@ -248,6 +211,40 @@
 									"referenceName": "ControlDB_Dataset",
 									"type": "DatasetReference"
 								}
+							}
+						},
+						{
+							"name": "Transform into Single Delta Table",
+							"description": "Transform Multiple parquet into Single Delta Table",
+							"type": "DatabricksNotebook",
+							"dependsOn": [
+								{
+									"activity": "Lookup the Data Date",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"notebookPath": "/Users/mali0092@flinders.edu.au/_Transform Multiple parquet into Single Delta Table",
+								"baseParameters": {
+									"TargetSystem": "@activity('Translate JSON Variables').output.result.TargetSystem",
+									"TargetEntity": "@activity('Translate JSON Variables').output.result.TargetEntityName",
+									"Scope": "@activity('Translate JSON Variables').output.result.Scope",
+									"TransformationSql": "@activity('Translate JSON Variables').output.result.TransformationSql"
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "AzureDatabricks",
+								"type": "LinkedServiceReference"
 							}
 						}
 					]
