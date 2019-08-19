@@ -215,7 +215,7 @@
 						},
 						{
 							"name": "Transform into Single Delta Table",
-							"description": "Transform Multiple parquet into Single Delta Table",
+							"description": "Transform Multiple Dataset into Single Delta Table",
 							"type": "DatabricksNotebook",
 							"dependsOn": [
 								{
