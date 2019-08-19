@@ -1,0 +1,361 @@
+{
+	"name": "_Process Type 10 - Transform Multiple Parquet into Single Delta Table",
+	"properties": {
+		"description": "Save the Current data into History folder and deconstruct the JSON file into a Table.",
+		"activities": [
+			{
+				"name": "Process Entity",
+				"description": "Process each individual Entity.",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Filter out Invalid Entities",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Filter out Invalid Entities').output.value",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "Deconstruct JSON into Table",
+							"description": "This Notebook will record History and deconstruct the JSON structure into a tabular format.",
+							"type": "DatabricksNotebook",
+							"dependsOn": [
+								{
+									"activity": "Lookup the Data Date",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"notebookPath": "/Analytics/_Deconstruct JSON to Table",
+								"baseParameters": {
+									"SourceSystem": {
+										"value": "@activity('Translate JSON Variables').output.result.SourceSystem",
+										"type": "Expression"
+									},
+									"Entity": {
+										"value": "@activity('Translate JSON Variables').output.result.EntityName",
+										"type": "Expression"
+									},
+									"Scope": {
+										"value": "@activity('Translate JSON Variables').output.result.Scope",
+										"type": "Expression"
+									},
+									"DeconstructionSql": {
+										"value": "@activity('Translate JSON Variables').output.result.DeconstructionSql",
+										"type": "Expression"
+									},
+									"DeconstructedTableName": {
+										"value": "@activity('Translate JSON Variables').output.result.DeconstructedTableName",
+										"type": "Expression"
+									},
+									"DataDate": {
+										"value": "@string(activity('Lookup the Data Date').output.firstRow.DataDate)",
+										"type": "Expression"
+									},
+									"SaveToHistory": {
+										"value": "@activity('Translate JSON Variables').output.result.SaveToHistory",
+										"type": "Expression"
+									}
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "AzureDatabricks",
+								"type": "LinkedServiceReference"
+							}
+						},
+						{
+							"name": "Set Process Start Time",
+							"description": "Set the LastRunStartTime for this Entity",
+							"type": "SqlServerStoredProcedure",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"storedProcedureName": "[Process].[up_UpdateEntityProcessStartTime]",
+								"storedProcedureParameters": {
+									"EntityKey": {
+										"value": {
+											"value": "@item().EntityKey",
+											"type": "Expression"
+										},
+										"type": "Int32"
+									}
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "ControlDB",
+								"type": "LinkedServiceReference"
+							}
+						},
+						{
+							"name": "Translate JSON Variables",
+							"description": "Accept four parameters, VariablesJSON, OverrideVariablesJSON, ConfigurationJSON and DefaultsJSON and translate into a recordset where the columns are a representation of the nodes in the resultant JSON.",
+							"type": "AzureFunctionActivity",
+							"dependsOn": [
+								{
+									"activity": "Set Process Start Time",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"functionName": "TranslateVariables",
+								"method": "POST",
+								"body": {
+									"value": "@item()",
+									"type": "Expression"
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "AzureFunctions",
+								"type": "LinkedServiceReference"
+							}
+						},
+						{
+							"name": "Indicate Success",
+							"type": "SqlServerStoredProcedure",
+							"dependsOn": [
+								{
+									"activity": "Deconstruct JSON into Table",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"storedProcedureName": "[Process].[up_UpdateEntityDiagnostics]",
+								"storedProcedureParameters": {
+									"EntityKey": {
+										"value": {
+											"value": "@item().EntityKey",
+											"type": "Expression"
+										},
+										"type": "Int32"
+									},
+									"Result": {
+										"value": "Success",
+										"type": "String"
+									},
+									"ExecutionMessage": {
+										"value": {
+											"value": "Success in Data Factory '@{pipeline().DataFactory}' | Pipeline '@{pipeline().Pipeline}' for '@{activity('Translate JSON Variables').output.result.SourceSystem}.@{activity('Translate JSON Variables').output.result.EntityName}' - Databricks Runsheet URL: @{activity('Deconstruct JSON into Table').output.runPageUrl} | Runtime (ms):  @{activity('Deconstruct JSON into Table').output.executionDuration}",
+											"type": "Expression"
+										},
+										"type": "String"
+									}
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "ControlDB",
+								"type": "LinkedServiceReference"
+							}
+						},
+						{
+							"name": "Indicate Failure",
+							"type": "SqlServerStoredProcedure",
+							"dependsOn": [
+								{
+									"activity": "Deconstruct JSON into Table",
+									"dependencyConditions": [
+										"Failed"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"storedProcedureName": "[Process].[up_UpdateEntityDiagnostics]",
+								"storedProcedureParameters": {
+									"EntityKey": {
+										"value": {
+											"value": "@item().EntityKey",
+											"type": "Expression"
+										},
+										"type": "Int32"
+									},
+									"ExecutionMessage": {
+										"value": {
+											"value": "Error in Data Factory '@{pipeline().DataFactory}' | Pipeline '@{pipeline().Pipeline}' for '@{activity('Translate JSON Variables').output.result.SourceSystem}.@{activity('Translate JSON Variables').output.result.EntityName}' - Databricks Runsheet URL: @{activity('Deconstruct JSON into Table').output.runPageUrl} | Runtime (ms):  @{activity('Deconstruct JSON into Table').output.executionDuration}",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"Result": {
+										"value": "Failure",
+										"type": "String"
+									}
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "ControlDB",
+								"type": "LinkedServiceReference"
+							}
+						},
+						{
+							"name": "Lookup the Data Date",
+							"description": "Read the Control table that specifies which date this data pertains to.",
+							"type": "Lookup",
+							"dependsOn": [
+								{
+									"activity": "Translate JSON Variables",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "AzureSqlSource",
+									"sqlReaderQuery": {
+										"value": "@activity('Translate JSON Variables').output.result.DataDateQuery",
+										"type": "Expression"
+									}
+								},
+								"dataset": {
+									"referenceName": "ControlDB_Dataset",
+									"type": "DatasetReference"
+								}
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "Get Entities to Process",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderStoredProcedureName": "[Process].[up_GetEntitiesToProcess]",
+						"storedProcedureParameters": {
+							"BatchSize": {
+								"type": "Int32",
+								"value": "999999"
+							},
+							"EntityGroupKeyList": {
+								"type": "String",
+								"value": {
+									"value": "@pipeline().parameters.EntityGroupKeyList",
+									"type": "Expression"
+								}
+							},
+							"ProcessTypeKey": {
+								"type": "Int32",
+								"value": {
+									"value": "@variables('ProcessTypeKey')",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					"dataset": {
+						"referenceName": "ControlDB_Dataset",
+						"type": "DatasetReference"
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "Filter out Invalid Entities",
+				"description": "If the EntityKey < 0, filter out.  An EntityKey of -1 is used to indicate there are no Entities to Process.",
+				"type": "Filter",
+				"dependsOn": [
+					{
+						"activity": "Get Entities to Process",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Get Entities to Process').output.value",
+						"type": "Expression"
+					},
+					"condition": {
+						"value": "@greater(item().EntityKey, 0)",
+						"type": "Expression"
+					}
+				}
+			}
+		],
+		"parameters": {
+			"EntityGroupKeyList": {
+				"type": "String",
+				"defaultValue": "3"
+			}
+		},
+		"variables": {
+			"ProcessTypeKey": {
+				"type": "String",
+				"defaultValue": "8"
+			}
+		},
+		"annotations": []
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}
