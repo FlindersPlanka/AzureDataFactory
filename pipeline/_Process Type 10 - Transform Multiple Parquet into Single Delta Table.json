@@ -1,7 +1,7 @@
 {
 	"name": "_Process Type 10 - Transform Multiple Parquet into Single Delta Table",
 	"properties": {
-		"description": "Save the Current data into History folder and deconstruct the JSON file into a Table.",
+		"description": "Transform Multiple Files into Single Delta Table dynamically.",
 		"activities": [
 			{
 				"name": "Process Entity",
@@ -26,14 +26,7 @@
 							"name": "Deconstruct JSON into Table",
 							"description": "This Notebook will record History and deconstruct the JSON structure into a tabular format.",
 							"type": "DatabricksNotebook",
-							"dependsOn": [
-								{
-									"activity": "Lookup the Data Date",
-									"dependencyConditions": [
-										"Succeeded"
-									]
-								}
-							],
+							"dependsOn": [],
 							"policy": {
 								"timeout": "7.00:00:00",
 								"retry": 0,
@@ -146,14 +139,7 @@
 						{
 							"name": "Indicate Success",
 							"type": "SqlServerStoredProcedure",
-							"dependsOn": [
-								{
-									"activity": "Deconstruct JSON into Table",
-									"dependencyConditions": [
-										"Succeeded"
-									]
-								}
-							],
+							"dependsOn": [],
 							"policy": {
 								"timeout": "7.00:00:00",
 								"retry": 0,
@@ -193,14 +179,7 @@
 						{
 							"name": "Indicate Failure",
 							"type": "SqlServerStoredProcedure",
-							"dependsOn": [
-								{
-									"activity": "Deconstruct JSON into Table",
-									"dependencyConditions": [
-										"Failed"
-									]
-								}
-							],
+							"dependsOn": [],
 							"policy": {
 								"timeout": "7.00:00:00",
 								"retry": 0,
